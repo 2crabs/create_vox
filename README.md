@@ -4,8 +4,8 @@ A Rust library for easily creating magicavoxel files. Includes all functionality
 ## Example
 creates a vox file with a red cube in the center.
 ```rust
-let mut voxel_vox = Voxobject::new(20,20,20);
-voxel_vox.set_palette_color(255,255,0,0,255);
-voxel_vox.add_voxel(Voxel::new(0,0,0,255));
-voxel_vox.save_as_file("voxel.vox");
+let mut cube_vox = Voxobject::new(100,100,100);
+cube_vox.set_palette_color(255,255,0,0,255);
+cube_vox.add_cube(25,25,25,75,75,75,255);
+cube_vox.save_as_file("red_cube.vox");
 ```

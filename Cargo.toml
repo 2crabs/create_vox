@@ -1,7 +1,9 @@
 [package]
 name = "create_vox"
-version = "0.1.0"
+version = "0.1.1"
+license = "MIT"
 authors = ["Mickey Fraser <mickey_fraser@outlook.com>"]
+description = "A rust library for creating magicavoxel files"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
