@@ -1,5 +1,6 @@
 use std::io::Write;
 //VOXOBJECT
+/// Holds all the information needed to create a vox file.
 pub struct Voxobject{
     size: (u16, u16, u16),
     voxels: Vec<Voxel>,
@@ -7,7 +8,14 @@ pub struct Voxobject{
 }
 
 impl Voxobject{
-    //needs to be created
+    ///Creates a new voxobject with the given size. Size needs to be between 1-255 on all axis.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(100,150,100);
+    /// ```
     pub fn new(size_x: u16, size_y: u16, size_z: u16) -> Voxobject{
         if size_x > 256 || size_y > 256 || size_z > 256 {
             panic!("size can not be greater than 256")
@@ -18,6 +26,17 @@ impl Voxobject{
             palette: [Color {r:75,g:75,b:75,a:255};256]
         }
     }
+    ///Adds a gradient between the 2 indexes in the palette with the 2 colors.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{Voxobject, Color};
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// let color1 = Color::new(255,255,0,255);
+    /// let color2 = Color::new(0,255,255,255);
+    /// my_vox.add_gradient(1,100,color1,color2);
+    /// ```
     pub fn add_gradient(&mut self, index1: u8, index2: u8, color1: Color, color2: Color){
         for i in index1..index2 {
             let fraction_between = ((i-index1) as f32) / ((index2-index1) as f32);
@@ -29,10 +48,30 @@ impl Voxobject{
             )
         }
     }
+
+    ///Adds one voxel to the voxobject.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{Voxobject, Voxel};
+    ///
+    /// let mut my_vox = Voxobject::new(20,20,20);
+    /// let voxel = Voxel::new(0,0,0,100);
+    /// my_vox.add_voxel(voxel);
+    /// ```
     pub fn add_voxel(&mut self,new_voxel: Voxel){
         self.voxels.push(new_voxel);
     }
 
+    /// Sets the color of a specific index on the palette
+    ///
+    /// # Examples
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.set_palette_color(1,255,0,0,255);
+    /// ```
     pub fn set_palette_color(&mut self,index: u8,r: u8,g: u8,b: u8,a: u8){
         if index == 0 {
             panic!("index needs to be between 1 and 255");
@@ -44,6 +83,15 @@ impl Voxobject{
         self.palette[new_index as usize].a = a;
     }
 
+    /// Sets color for all indexes on the palette
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.set_all_palette_color(0,255,0,255);
+    /// ```
     pub fn set_all_palette_color(&mut self,r: u8,g: u8,b: u8,a: u8){
         for i in 0..255{
             self.palette[i as usize].r = r;
@@ -53,6 +101,14 @@ impl Voxobject{
         }
     }
 
+    /// Adds a cube of voxels in the voxobject.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    /// let mut my_vox = Voxobject::new(100,100,100);
+    /// my_vox.add_cube(25,25,25,75,75,75,1);
+    /// ```
     pub fn add_cube(&mut self,startx: u8,starty: u8,startz: u8,endx: u8,endy: u8,endz: u8,colorindex: u8){
         for currentx in startx..endx{
             for currenty in starty..endy{
@@ -63,12 +119,22 @@ impl Voxobject{
         }
     }
 
-    pub fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>){
+    fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>){
         for i in 0..self.voxels.len(){
             buf_writer.write(&[self.voxels[i].position.0,self.voxels[i].position.1,self.voxels[i].position.2,self.voxels[i].colorindex]).expect("failed to write voxels");
         }
     }
 
+    ///Creates a file and saves the voxobject to it.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{Voxobject, Voxel};
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.set_all_palette_color(255,0,0,255);
+    /// my_vox.add_voxel(Voxel::new(0,0,0,1));
+    /// my_vox.save_as_file("my_vox.vox");
+    /// ```
     pub fn save_as_file(&mut self,name: &str){
 
         let empty_slice: &[u8] = &[0,0,0,0];
@@ -112,16 +178,21 @@ impl Voxobject{
 }
 
 //VOXEL
+/// A single voxel.
 pub struct Voxel{
     position: (u8, u8, u8),
     colorindex: u8
 }
 
 impl Voxel{
-    fn write_to_file(&self, file: &mut std::fs::File){
-        file.write(&[self.position.0,self.position.1,self.position.2, self.colorindex]).expect("failed to write to file");
-    }
-
+    /// Creates new voxel.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxel;
+    ///
+    /// let voxel = Voxel::new(5,0,0,1);
+    /// ```
     pub fn new(x: u8, y: u8, z: u8,  colorindex_value: u8) -> Voxel{
         if colorindex_value == 0 {
             panic!("index needs to be between 1 and 255");
@@ -134,6 +205,7 @@ impl Voxel{
 }
 
 //COLOR
+/// Color containing 4 bytes for red, green, blue, and alpha.
 #[derive(Copy, Clone)]
 pub struct Color {
     r: u8,
@@ -143,6 +215,14 @@ pub struct Color {
 }
 
 impl Color {
+    /// Creates new color.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Color;
+    ///
+    /// let yellow = Color::new(255,255,0,255);
+    /// ```
     pub fn new(r: u8, g: u8, b: u8, a: u8) -> Color {
         Color {
             r,
