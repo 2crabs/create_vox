@@ -34,6 +34,9 @@ impl Voxobject{
     }
 
     pub fn set_palette_color(&mut self,index: u8,r: u8,g: u8,b: u8,a: u8){
+        if index == 0 {
+            panic!("index needs to be between 1 and 255");
+        }
         let new_index = index - 1;
         self.palette[new_index as usize].r = r;
         self.palette[new_index as usize].g = g;
@@ -120,6 +123,9 @@ impl Voxel{
     }
 
     pub fn new(x: u8, y: u8, z: u8,  colorindex_value: u8) -> Voxel{
+        if colorindex_value == 0 {
+            panic!("index needs to be between 1 and 255");
+        }
         Voxel{
             position: (x, y, z),
             colorindex: colorindex_value
@@ -187,5 +193,28 @@ mod tests {
     #[should_panic]
     fn size_too_big(){
         let test_vox = Voxobject::new(254,300,10);
+    }
+
+    #[test]
+    #[should_panic]
+    fn incorrect_index(){
+        let mut test_vox = Voxobject::new(10,10,10);
+        test_vox.set_palette_color(0,255,255,255,255);
+    }
+
+    #[test]
+    fn red_cube(){
+        let mut cube_vox = Voxobject::new(100,100,100);
+        cube_vox.set_palette_color(255,255,0,0,255);
+        cube_vox.add_cube(25,25,25,75,75,75,255);
+        cube_vox.save_as_file("red_cube.vox");
+    }
+
+    #[test]
+    fn one_voxel(){
+        let mut voxel_vox = Voxobject::new(20,20,20);
+        voxel_vox.set_palette_color(255,255,0,0,255);
+        voxel_vox.add_voxel(Voxel::new(0,0,0,255));
+        voxel_vox.save_as_file("voxel.vox");
     }
 }
