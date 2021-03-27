@@ -1,5 +1,5 @@
 # Creating vox files in rust
-A Rust library for easily creating vox files. Includes all functionality for creating a simple vox file.
+A Rust library for easily creating magicavoxel files. Includes all functionality for creating a simple vox file.
 
 ## Example
 creates a vox file with a red cube in the center.
