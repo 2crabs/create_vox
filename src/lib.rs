@@ -69,6 +69,15 @@ impl Voxobject{
         Ok(())
     }
 
+    ///Adds a voxel at the position specified.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.add_voxel_at_pos(3,7,3,1);
+    /// ```
     pub fn add_voxel_at_pos(&mut self, x: u8, y: u8, z: u8, voxel_index: u8) -> Result<(), &str>{
         if (x + 1) as u16 > self.size.0 ||
             (y + 1) as u16 > self.size.1 ||
@@ -79,17 +88,61 @@ impl Voxobject{
         Ok(())
     }
 
+   /// Deletes all voxels in the Voxobject
+   ///
+   /// # Example
+   /// ```
+   /// use create_vox::Voxobject;
+   ///
+   /// let mut my_vox = Voxobject::new(10,10,10);
+   /// my_vox.add_voxel_at_pos(3,7,3,1);
+   /// my_vox.add_voxel_at_pos(3,6,3,2);
+   /// my_vox.add_voxel_at_pos(3,5,3,3);
+   /// my_vox.clear_voxels();
+   /// ```
     pub fn clear_voxels(&mut self){
         self.voxels.clear();
     }
 
+    /// Resets all indexes in the pallete to the default color
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.set_all_palette_color(255, 100, 0, 255);
+    /// my_vox.reset_palette();
+    /// ```
     pub fn reset_palette(&mut self){
         self.palette = [Color {r:75,g:75,b:75,a:255};256];
     }
+
+    /// Number of voxes in the Voxobject
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.add_voxel_at_pos(3,7,3,1);
+    /// my_vox.add_voxel_at_pos(3,6,3,2);
+    /// my_vox.add_voxel_at_pos(3,5,3,3);
+    /// assert_eq!(3, my_vox.num_of_voxels())
+    /// ```
     pub fn num_of_voxels(&self) -> i32{
         self.voxels.len() as i32
     }
 
+    /// Sets the size of a Voxobject
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(10,10,10);
+    /// my_vox.set_size(5,5,5);
+    /// ```
     pub fn set_size(&mut self, x: u16, y: u16, z: u16){
         if x > 256 || y > 256 || z > 256 {
             panic!("size can not be greater than 256");
