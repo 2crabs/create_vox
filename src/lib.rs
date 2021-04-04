@@ -59,13 +59,23 @@ impl Voxobject{
     /// let voxel = Voxel::new(0,0,0,100);
     /// my_vox.add_voxel(voxel);
     /// ```
-    pub fn add_voxel(&mut self,new_voxel: Voxel) -> Result<(), &str>{
+    pub fn add_voxel(&mut self, new_voxel: Voxel) -> Result<(), &str>{
         if (new_voxel.position.0 + 1) as u16 > self.size.0 ||
             (new_voxel.position.1 + 1) as u16 > self.size.1 ||
                 (new_voxel.position.2 + 1) as u16 > self.size.2 {
             return Err("Voxel position greater than Voxobject size");
         }
         self.voxels.push(new_voxel);
+        Ok(())
+    }
+
+    pub fn add_voxel_at_pos(&mut self, x: u8, y: u8, z: u8, voxel_index: u8) -> Result<(), &str>{
+        if (x + 1) as u16 > self.size.0 ||
+            (y + 1) as u16 > self.size.1 ||
+            (z + 1) as u16 > self.size.2 {
+            return Err("Position greater than Voxobject size");
+        }
+        self.voxels.push(Voxel::new(x, y, z, voxel_index));
         Ok(())
     }
 
