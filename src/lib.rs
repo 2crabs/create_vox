@@ -79,6 +79,24 @@ impl Voxobject{
         Ok(())
     }
 
+    pub fn clear_voxels(&mut self){
+        self.voxels.clear();
+    }
+
+    pub fn reset_palette(&mut self){
+        self.palette = [Color {r:75,g:75,b:75,a:255};256];
+    }
+    pub fn num_of_voxels(&self) -> i32{
+        self.voxels.len() as i32
+    }
+
+    pub fn set_size(&mut self, x: u16, y: u16, z: u16){
+        if x > 256 || y > 256 || z > 256 {
+            panic!("size can not be greater than 256");
+        }
+        self.size = (x, y, z);
+    }
+
     /// Sets the color of a specific index on the palette
     ///
     /// # Examples
