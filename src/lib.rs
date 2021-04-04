@@ -59,8 +59,14 @@ impl Voxobject{
     /// let voxel = Voxel::new(0,0,0,100);
     /// my_vox.add_voxel(voxel);
     /// ```
-    pub fn add_voxel(&mut self,new_voxel: Voxel){
+    pub fn add_voxel(&mut self,new_voxel: Voxel) -> Result<(), &str>{
+        if (new_voxel.position.0 + 1) as u16 > self.size.0 ||
+            (new_voxel.position.1 + 1) as u16 > self.size.1 ||
+                (new_voxel.position.2 + 1) as u16 > self.size.2 {
+            return Err("Voxel position greater than Voxobject size");
+        }
         self.voxels.push(new_voxel);
+        Ok(())
     }
 
     /// Sets the color of a specific index on the palette
@@ -296,5 +302,11 @@ mod tests {
         voxel_vox.set_palette_color(255,255,0,0,255);
         voxel_vox.add_voxel(Voxel::new(0,0,0,255));
         voxel_vox.save_as_file("voxel.vox");
+    }
+    #[test]
+    fn out_of_range_voxel(){
+        let mut vox = Voxobject::new(3,3,3);
+        let voxel = Voxel::new(2,1,5,1);
+        assert_eq!(Err("Voxel position greater than Voxobject size"), vox.add_voxel(voxel));
     }
 }
