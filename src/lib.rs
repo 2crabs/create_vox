@@ -1,4 +1,10 @@
+mod voxobject;
+mod writing;
+mod color;
+mod voxel;
+
 use std::io::Write;
+use writing::*;
 //VOXOBJECT
 /// Holds all the information needed to create a vox file.
 pub struct Voxobject{
@@ -196,14 +202,16 @@ impl Voxobject{
     /// let mut my_vox = Voxobject::new(100,100,100);
     /// my_vox.add_cube(25,25,25,75,75,75,1);
     /// ```
-    pub fn add_cube(&mut self,startx: u8,starty: u8,startz: u8,endx: u8,endy: u8,endz: u8,colorindex: u8){
+    pub fn add_cube(&mut self,startx: u8,starty: u8,startz: u8,endx: u8,endy: u8,endz: u8,colorindex: u8) -> Result<(), &str>{
         for currentx in startx..endx{
             for currenty in starty..endy{
                 for currentz in startz..endz{
-                    self.add_voxel(Voxel::new(currentx, currenty, currentz, colorindex));
+                    self.add_voxel(Voxel::new(currentx, currenty, currentz, colorindex)).unwrap();
                 }
             }
         }
+
+        Ok(())
     }
 
     fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>){
@@ -318,15 +326,6 @@ impl Color {
             a
         }
     }
-}
-
-//writing functions
-fn write_string_literal(inputfile: &mut std::io::BufWriter<std::fs::File>, string: &str){
-    inputfile.write(string.as_bytes()).expect("failed");
-}
-
-fn write_slice(inputfile: &mut std::io::BufWriter<std::fs::File>, slice: &[u8]){
-    inputfile.write(slice).expect("failed");
 }
 
 fn i32_to_array(a: u32) -> [u8;4]{
