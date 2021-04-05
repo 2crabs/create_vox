@@ -59,7 +59,7 @@ impl Voxobject{
     ///
     /// let mut my_vox = Voxobject::new(20,20,20);
     /// let voxel = Voxel::new(0,0,0,100);
-    /// my_vox.add_voxel(voxel);
+    /// my_vox.add_voxel(voxel).unwrap();
     /// ```
     pub fn add_voxel(&mut self, new_voxel: Voxel) -> Result<(), &str>{
         if (new_voxel.position.0 + 1) as u16 > self.size.0 ||
@@ -78,7 +78,7 @@ impl Voxobject{
     /// use create_vox::Voxobject;
     ///
     /// let mut my_vox = Voxobject::new(10,10,10);
-    /// my_vox.add_voxel_at_pos(3,7,3,1);
+    /// my_vox.add_voxel_at_pos(3,7,3,1).unwrap();
     /// ```
     pub fn add_voxel_at_pos(&mut self, x: u8, y: u8, z: u8, voxel_index: u8) -> Result<(), &str>{
         if (x + 1) as u16 > self.size.0 ||
@@ -97,9 +97,9 @@ impl Voxobject{
     /// use create_vox::Voxobject;
     ///
     /// let mut my_vox = Voxobject::new(10,10,10);
-    /// my_vox.add_voxel_at_pos(3,7,3,1);
-    /// my_vox.add_voxel_at_pos(3,6,3,2);
-    /// my_vox.add_voxel_at_pos(3,5,3,3);
+    /// my_vox.add_voxel_at_pos(3,7,3,1).unwrap();
+    /// my_vox.add_voxel_at_pos(3,6,3,2).unwrap();
+    /// my_vox.add_voxel_at_pos(3,5,3,3).unwrap();
     /// my_vox.clear_voxels();
     /// ```
     pub fn clear_voxels(&mut self){
@@ -127,9 +127,9 @@ impl Voxobject{
     /// use create_vox::Voxobject;
     ///
     /// let mut my_vox = Voxobject::new(10,10,10);
-    /// my_vox.add_voxel_at_pos(3,7,3,1);
-    /// my_vox.add_voxel_at_pos(3,6,3,2);
-    /// my_vox.add_voxel_at_pos(3,5,3,3);
+    /// my_vox.add_voxel_at_pos(3,7,3,1).unwrap();
+    /// my_vox.add_voxel_at_pos(3,6,3,2).unwrap();
+    /// my_vox.add_voxel_at_pos(3,5,3,3).unwrap();
     /// assert_eq!(3, my_vox.num_of_voxels())
     /// ```
     pub fn num_of_voxels(&self) -> i32{
@@ -196,7 +196,7 @@ impl Voxobject{
     /// ```
     /// use create_vox::Voxobject;
     /// let mut my_vox = Voxobject::new(100,100,100);
-    /// my_vox.add_cube(25,25,25,75,75,75,1);
+    /// my_vox.add_cube(25,25,25,75,75,75,1).unwrap();
     /// ```
     pub fn add_cube(&mut self,startx: u8,starty: u8,startz: u8,endx: u8,endy: u8,endz: u8,colorindex: u8) -> Result<(), &str>{
         if endx as u16 > self.size.0 || endx as u16 > self.size.0 || endx as u16 > self.size.0 {
@@ -225,9 +225,10 @@ impl Voxobject{
     /// # Example
     /// ```
     /// use create_vox::{Voxobject, Voxel};
+    ///
     /// let mut my_vox = Voxobject::new(10,10,10);
     /// my_vox.set_all_palette_color(255,0,0,255);
-    /// my_vox.add_voxel(Voxel::new(0,0,0,1));
+    /// my_vox.add_voxel(Voxel::new(0,0,0,1)).unwrap();
     /// my_vox.save_as_file("my_vox.vox");
     /// ```
     pub fn save_as_file(&mut self,name: &str){
