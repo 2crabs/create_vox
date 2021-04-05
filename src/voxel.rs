@@ -23,3 +23,10 @@ impl Voxel{
         }
     }
 }
+
+impl PartialEq for Voxel{
+    fn eq(&self, other: &Voxel) -> bool{
+        self.position == other.position &&
+            self.colorindex == other.colorindex
+    }
+}

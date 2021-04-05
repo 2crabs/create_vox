@@ -45,3 +45,10 @@ fn out_of_range_voxel(){
     let voxel = Voxel::new(2,1,5,1);
     assert_eq!(Err("Voxel position greater than Voxobject size"), vox.add_voxel(voxel));
 }
+
+#[test]
+fn comparing(){
+    let color1 = Color::new(255,10,40,255);
+    let color2 = Color::new(255,13,40,255);
+    let thing = color1 == color2;
+}

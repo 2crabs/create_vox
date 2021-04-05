@@ -19,7 +19,7 @@ fn u16_to_array(a: u16) -> [u8;2]{
 }
 
 fn get_middle(a: u8, b: u8, point_between: f32) -> u8{
-    ((((b as i16)-(a as i16)) as f32 * point_between)+ a as f32) as u8
+    ((((b as i16)-(a as i16)) as f32 * point_between) + a as f32) as u8
 }
 
 #[cfg(test)]
