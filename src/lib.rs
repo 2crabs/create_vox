@@ -4,10 +4,10 @@ mod color;
 mod voxel;
 
 use std::io::Write;
-use writing::*;
-use color::*;
-use voxel::*;
-use voxobject::*;
+pub use writing::*;
+pub use color::*;
+pub use voxel::*;
+pub use voxobject::*;
 
 
 fn i32_to_array(a: u32) -> [u8;4]{
@@ -24,7 +24,11 @@ fn get_middle(a: u8, b: u8, point_between: f32) -> u8{
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::writing::*;
+    use crate::color::*;
+    use crate::voxel::*;
+    use crate::voxobject::*;
+
     #[test]
     fn it_works() {
         let mut my_vox = Voxobject::new(256,256,256);
