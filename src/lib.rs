@@ -203,6 +203,9 @@ impl Voxobject{
     /// my_vox.add_cube(25,25,25,75,75,75,1);
     /// ```
     pub fn add_cube(&mut self,startx: u8,starty: u8,startz: u8,endx: u8,endy: u8,endz: u8,colorindex: u8) -> Result<(), &str>{
+        if endx as u16 > self.size.0 || endx as u16 > self.size.0 || endx as u16 > self.size.0 {
+            return Err("Cube too large");
+        }
         for currentx in startx..endx{
             for currenty in starty..endy{
                 for currentz in startz..endz{
@@ -213,6 +216,7 @@ impl Voxobject{
 
         Ok(())
     }
+
 
     fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>){
         for i in 0..self.voxels.len(){
@@ -347,11 +351,11 @@ mod tests {
     fn it_works() {
         let mut my_vox = Voxobject::new(256,256,256);
         my_vox.set_all_palette_color(255,0,0,255);
-        my_vox.add_voxel(Voxel::new(0,0,0,1));
+        my_vox.add_voxel(Voxel::new(0,0,0,1)).unwrap();
         let color1 = Color::new(255,255,0,255);
         let color2 = Color::new(0,255,255,255);
         my_vox.add_gradient(1,100,color1,color2);
-        my_vox.add_cube(0,0,0,255,255,255,70);
+        my_vox.add_cube(0,0,0,255,255,255,70).unwrap();
         my_vox.save_as_file("myvox.vox");
     }
 
@@ -372,7 +376,7 @@ mod tests {
     fn red_cube(){
         let mut cube_vox = Voxobject::new(100,100,100);
         cube_vox.set_palette_color(255,255,0,0,255);
-        cube_vox.add_cube(25,25,25,75,75,75,255);
+        cube_vox.add_cube(25,25,25,75,75,75,255).unwrap();
         cube_vox.save_as_file("red_cube.vox");
     }
 
@@ -380,7 +384,7 @@ mod tests {
     fn one_voxel(){
         let mut voxel_vox = Voxobject::new(20,20,20);
         voxel_vox.set_palette_color(255,255,0,0,255);
-        voxel_vox.add_voxel(Voxel::new(0,0,0,255));
+        voxel_vox.add_voxel(Voxel::new(0,0,0,255)).unwrap();
         voxel_vox.save_as_file("voxel.vox");
     }
     #[test]
