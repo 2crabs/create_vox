@@ -52,3 +52,9 @@ fn comparing(){
     let color2 = Color::new(255,13,40,255);
     let thing = color1 == color2;
 }
+
+#[test]
+fn addition(){
+    let mut vox1 = Voxobject::new(256,256,256);
+    let mut vox2 = Voxobject::new(256,256,256);
+}

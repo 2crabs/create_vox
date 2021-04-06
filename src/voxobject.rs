@@ -1,8 +1,10 @@
 use crate::voxel::*;
 use crate::color::*;
 use crate::*;
+use std::ops::Add;
 
 /// Holds all the information needed to create a vox file.
+#[derive(Clone)]
 pub struct Voxobject{
     size: (u16, u16, u16),
     voxels: Vec<Voxel>,
@@ -270,5 +272,30 @@ impl Voxobject{
             write_slice(&mut buf_writer, &[self.palette[i].r,self.palette[i].g,self.palette[i].b,self.palette[i].a]);
         }
 
+    }
+}
+
+impl Add for Voxobject{
+    type Output = Voxobject;
+
+    fn add(self, other: Voxobject) -> Voxobject{
+        let mut new_voxobject = Voxobject::new(self.size.0, self.size.1, self.size.2);
+        let mut other_voxels = other.voxels;
+        new_voxobject.voxels = self.voxels;
+        new_voxobject.palette = self.palette;
+        new_voxobject.voxels.append(&mut other_voxels);
+
+        new_voxobject
+    }
+}
+
+impl Add<Voxel> for Voxobject{
+    type Output = Voxobject;
+
+    fn add(self, other: Voxel) -> Voxobject{
+        let mut new_voxobject = self.clone();
+        new_voxobject.voxels.push(other);
+
+        new_voxobject
     }
 }

@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 /// Color containing 4 bytes for red, green, blue, and alpha.
 #[derive(Copy, Clone)]
 pub struct Color {
@@ -32,5 +34,18 @@ impl PartialEq for Color{
             self.g == other.g &&
             self.b == other.b &&
             self.a == other.a
+    }
+}
+
+impl Add for Color{
+    type Output = Color;
+
+    fn add(self, other: Color) -> Color{
+        let r = (self.r + other.r) / 2;
+        let g = (self.g + other.g) / 2;
+        let b = (self.b + other.b) / 2;
+        let a = (self.a + other.a) / 2;
+
+        Color::new(r,g,b,a)
     }
 }

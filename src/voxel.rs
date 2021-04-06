@@ -1,4 +1,7 @@
+use std::ops::Add;
+
 /// A single voxel.
+#[derive(Clone)]
 pub struct Voxel{
     pub position: (u8, u8, u8),
     pub colorindex: u8
@@ -28,5 +31,13 @@ impl PartialEq for Voxel{
     fn eq(&self, other: &Voxel) -> bool{
         self.position == other.position &&
             self.colorindex == other.colorindex
+    }
+}
+
+impl Add for Voxel{
+    type Output = Vec<Voxel>;
+
+    fn add(self, other: Voxel) -> Vec<Voxel>{
+        vec![self, other]
     }
 }
