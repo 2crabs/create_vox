@@ -1,7 +1,7 @@
 use crate::voxel::*;
 use crate::color::*;
 use crate::*;
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 
 /// Holds all the information needed to create a vox file.
 #[derive(Clone)]
@@ -303,5 +303,23 @@ impl Add<Voxel> for Voxobject{
         new_voxobject.voxels.push(other);
 
         new_voxobject
+    }
+}
+
+impl AddAssign for Voxobject{
+    fn add_assign(&mut self, other: Voxobject){
+        self.voxels.append(&mut other.voxels.clone());
+    }
+}
+
+impl AddAssign<Voxel> for Voxobject{
+    fn add_assign(&mut self, other: Voxel){
+        self.voxels.push(other);
+    }
+}
+
+impl PartialEq for Voxobject{
+    fn eq(&self, other: &Voxobject) -> bool{
+        self.voxels == other.voxels
     }
 }
