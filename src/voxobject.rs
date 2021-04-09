@@ -148,6 +148,12 @@ impl Voxobject{
     /// my_vox.set_size(5,5,5);
     /// ```
     pub fn set_size(&mut self, x: u16, y: u16, z: u16){
+        //remove voxels not inside object when resized
+        self.voxels.retain(|voxel| {
+            (voxel.position.0 as u16) < x &&
+                (voxel.position.1 as u16) < y &&
+                (voxel.position.2 as u16) < z
+        });
         if x > 256 || y > 256 || z > 256 {
             panic!("size can not be greater than 256");
         }
