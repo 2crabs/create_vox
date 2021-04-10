@@ -65,6 +65,8 @@ fn large_cube(){
 
     vox.add_voxel_at_pos(5,10,4,3);
     vox.add_voxel_at_pos(5,13,4,3);
+    vox.add_voxel_at_pos(1,23,2,3);
+    vox.add_cube(40,40,55,60,44,60,1);
     vox.auto_size();
 
     vox.save_as_file("large.vox");

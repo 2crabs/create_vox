@@ -162,6 +162,21 @@ impl Voxobject{
 
     pub fn auto_size(&mut self){
         let mut new_size = (1, 1, 1);
+        let mut smallest_pos: (u8, u8, u8) = (255, 255, 255);
+
+        //get smallest position of the voxels
+        for voxel in self.voxels.iter(){
+            if voxel.position.0 < smallest_pos.0 {smallest_pos.0 = voxel.position.0}
+            if voxel.position.1 < smallest_pos.1 {smallest_pos.1 = voxel.position.1}
+            if voxel.position.2 < smallest_pos.2 {smallest_pos.2 = voxel.position.2}
+        }
+        //move voxels
+        for voxel in self.voxels.iter_mut(){
+            voxel.position = (voxel.position.0 - smallest_pos.0,
+                              voxel.position.1 - smallest_pos.1,
+                              voxel.position.2 - smallest_pos.2
+            )
+        }
 
         //add if for no voxels
 
