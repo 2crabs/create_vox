@@ -8,7 +8,7 @@ use std::ops::{Add, AddAssign};
 pub struct Voxobject{
     size: (u16, u16, u16),
     voxels: Vec<Voxel>,
-    palette: [Color; 256]
+    pub(crate)palette: [Color; 256]
 }
 
 impl Voxobject{
