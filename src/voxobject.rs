@@ -160,6 +160,17 @@ impl Voxobject{
         self.size = (x, y, z);
     }
 
+    /// Changes the size of the voxobject to fit the voxels
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(100,100,100);
+    /// my_vox.add_voxel_at_pos(1,23,2,3);
+    /// my_vox.add_cube(40,40,55,60,44,60,1);
+    /// my_vox.auto_size();
+    /// ```
     pub fn auto_size(&mut self){
         let mut new_size = (1, 1, 1);
         let mut smallest_pos: (u8, u8, u8) = (255, 255, 255);
@@ -177,8 +188,6 @@ impl Voxobject{
                               voxel.position.2 - smallest_pos.2
             )
         }
-
-        //add if for no voxels
 
         for voxel in self.voxels.iter(){
             if (voxel.position.0 as u16) > new_size.0 - 1 {new_size.0 = (voxel.position.0 + 1) as u16}
