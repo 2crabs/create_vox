@@ -160,6 +160,20 @@ impl Voxobject{
         self.size = (x, y, z);
     }
 
+    pub fn auto_size(&mut self){
+        let mut new_size = (1, 1, 1);
+
+        //add if for no voxels
+
+        for voxel in self.voxels.iter(){
+            if (voxel.position.0 as u16) > new_size.0 - 1 {new_size.0 = (voxel.position.0 + 1) as u16}
+            if (voxel.position.1 as u16) > new_size.1 - 1 {new_size.1 = (voxel.position.1 + 1) as u16}
+            if (voxel.position.2 as u16) > new_size.2 - 1 {new_size.2 = (voxel.position.2 + 1) as u16}
+        }
+
+        self.size = new_size
+    }
+
     /// Sets the color of a specific index on the palette
     ///
     /// # Examples

@@ -63,8 +63,9 @@ fn addition(){
 fn large_cube(){
     let mut vox = Voxobject::new(256,256,256);
 
-    vox.add_cube(0, 0 ,0 , 255, 255, 255, 1);
-    vox.set_size(4,4,5);
+    vox.add_voxel_at_pos(5,10,4,3);
+    vox.add_voxel_at_pos(5,13,4,3);
+    vox.auto_size();
 
     vox.save_as_file("large.vox");
 }
