@@ -259,6 +259,18 @@ impl Voxobject{
         Ok(())
     }
 
+    pub fn is_voxel_at_pos(&self, x: u8, y: u8, z: u8) -> bool{
+        for voxel in self.voxels.iter(){
+            if voxel.position.0 == x &&
+                voxel.position.1 == y &&
+                    voxel.position.2 == z{
+                return true
+            }
+        }
+
+        return false
+    }
+
 
     fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>){
         for i in 0..self.voxels.len(){
@@ -295,23 +307,33 @@ impl Voxobject{
 
         write_string_literal(&mut buf_writer, "MAIN");
         write_slice(&mut buf_writer, empty_slice);
+        //writes number of bytes for children
         write_slice(&mut buf_writer, &i32_to_array((number_of_voxels*4)+41));
 
+        //size of the voxobject
         write_string_literal(&mut buf_writer, "SIZE");
+        //Size holds 12 bytes
         write_slice(&mut buf_writer, &[12,0,0,0]);
         write_slice(&mut buf_writer, empty_slice);
+        //writes the slice for size
         write_slice(&mut buf_writer, size_slice);
 
+        //this is all the voxels the voxobject has
         write_string_literal(&mut buf_writer, "XYZI");
+        //writes size of this chunk. each voxel holds 4 bytes and then another 4 bytes for how many voxels there are
         write_slice(&mut buf_writer, &i32_to_array((number_of_voxels*4)+4));
         write_slice(&mut buf_writer, empty_slice);
+        //number voxels in the voxobject
         write_slice(&mut buf_writer, &i32_to_array(number_of_voxels));
+        //writes all of the voxels
         self.write_voxels(&mut buf_writer);
 
+        //the palette
         write_string_literal(&mut buf_writer, "RGBA");
+        //writes size of chunk which is 4*256 bytes
         write_slice(&mut buf_writer, &[0,4,0,0]);
         write_slice(&mut buf_writer, empty_slice);
-        //max value of i is 255
+        //writes all of the colors in the palette
         for i in 0..256{
             write_slice(&mut buf_writer, &[self.palette[i].r,self.palette[i].g,self.palette[i].b,self.palette[i].a]);
         }

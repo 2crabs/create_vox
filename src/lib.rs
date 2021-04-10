@@ -2,13 +2,13 @@ mod voxobject;
 mod writing;
 mod color;
 mod voxel;
+pub mod loader;
 
 use std::io::Write;
 use writing::*;
 pub use color::*;
 pub use voxel::*;
 pub use voxobject::*;
-
 
 fn i32_to_array(a: u32) -> [u8;4]{
     a.to_ne_bytes()
