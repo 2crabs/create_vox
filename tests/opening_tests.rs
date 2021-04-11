@@ -1,5 +1,4 @@
-use create_vox::{Color, Voxobject, Voxel};
-use std::fs::File;
+use create_vox::Voxobject;
 
 #[test]
 fn load(){

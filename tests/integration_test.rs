@@ -14,7 +14,7 @@ fn it_works() {
 #[test]
 #[should_panic]
 fn size_too_big(){
-    let test_vox = Voxobject::new(254,300,10);
+    Voxobject::new(254,300,10);
 }
 
 #[test]
@@ -50,23 +50,26 @@ fn out_of_range_voxel(){
 fn comparing(){
     let color1 = Color::new(255,10,40,255);
     let color2 = Color::new(255,13,40,255);
-    let thing = color1 == color2;
+    let are_equal = color1 == color2;
+    assert_eq!(false, are_equal);
 }
 
 #[test]
 fn addition(){
     let mut vox1 = Voxobject::new(256,256,256);
-    let mut vox2 = Voxobject::new(256,256,256);
+    let vox2 = Voxobject::new(256,256,256);
+
+    vox1 += vox2;
 }
 
 #[test]
 fn large_cube(){
     let mut vox = Voxobject::new(256,256,256);
 
-    vox.add_voxel_at_pos(5,10,4,3);
-    vox.add_voxel_at_pos(5,13,4,3);
-    vox.add_voxel_at_pos(1,23,2,3);
-    vox.add_cube(40,40,55,60,44,60,1);
+    vox.add_voxel_at_pos(5,10,4,3).unwrap();
+    vox.add_voxel_at_pos(5,13,4,3).unwrap();
+    vox.add_voxel_at_pos(1,23,2,3).unwrap();
+    vox.add_cube(40,40,55,60,44,60,1).unwrap();
     vox.auto_size();
 
     vox.save_as_file("large.vox");
