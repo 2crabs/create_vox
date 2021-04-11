@@ -357,13 +357,16 @@ impl Voxobject{
     /// ```
     /// use create_vox::Voxobject;
     ///
-    /// let mut loaded_vox = Voxobject::load("my_vox.vox");
+    /// let mut loaded_vox = Voxobject::load("my_vox.vox").expect("failed to open file");
     /// loaded_vox.set_all_palette_color(255,0,255,255);
     /// loaded_vox.save_as_file("new_vox.vox");
     /// ```
-    pub fn load(file_path: &str) -> Voxobject{
-        let mut file = File::open(file_path).expect("failed to open file");
-        loader::load_voxobject(&mut file)
+    pub fn load(file_path: &str) -> Result<Voxobject, &str>{
+        let mut file = match  File::open(file_path) {
+            Err(_) => {return Err("failed to open file")},
+            Ok(file) => file
+        };
+        Ok(loader::load_voxobject(&mut file))
     }
 
     /// Loads a voxobject from the file given

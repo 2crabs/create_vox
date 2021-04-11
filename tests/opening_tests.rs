@@ -3,7 +3,7 @@ use std::fs::File;
 
 #[test]
 fn load(){
-    let mut new_vox = Voxobject::load("loaded.vox");
+    let mut new_vox = Voxobject::load("loaded.vox").expect("failed to open in opening_test");
     new_vox.save_as_file("loaded_copy.vox");
 }
 
