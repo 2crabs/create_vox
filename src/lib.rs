@@ -2,7 +2,7 @@ mod voxobject;
 mod writing;
 mod color;
 mod voxel;
-pub mod loader;
+pub(crate) mod loader;
 mod convert;
 
 use std::io::Write;

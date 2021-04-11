@@ -3,6 +3,7 @@ use crate::color::*;
 use crate::convert::*;
 use crate::*;
 use std::ops::{Add, AddAssign};
+use std::fs::File;
 
 /// Holds all the information needed to create a vox file.
 #[derive(Clone)]
@@ -339,6 +340,15 @@ impl Voxobject{
             write_slice(&mut buf_writer, &[self.palette[i].r,self.palette[i].g,self.palette[i].b,self.palette[i].a]);
         }
 
+    }
+
+    pub fn load(file_path: &str) -> Voxobject{
+        let mut file = File::open(file_path).expect("failed to open file");
+        loader::load_voxobject(&mut file)
+    }
+
+    pub fn load_from_file(file: &mut File) -> Voxobject{
+        loader::load_voxobject(file)
     }
 }
 

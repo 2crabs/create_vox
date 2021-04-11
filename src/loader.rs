@@ -3,8 +3,7 @@ use std::io::Read;
 use std::convert::TryInto;
 use crate::{Voxobject, Voxel, Color};
 
-pub fn load_voxobject(file_path: &str) -> Voxobject{
-    let mut file = File::open(file_path).expect("failed to open file");
+pub(crate) fn load_voxobject(file: &mut File) -> Voxobject{
 
     let mut contents = Vec::new();
     file.read_to_end(&mut contents).expect("failed to read file contents");
