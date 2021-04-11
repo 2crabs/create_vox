@@ -1,5 +1,6 @@
 use create_vox::{Color, Voxobject, Voxel};
 #[test]
+#[ignore]
 fn it_works() {
     let mut my_vox = Voxobject::new(256,256,256);
     my_vox.set_all_palette_color(255,0,0,255);

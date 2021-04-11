@@ -261,6 +261,15 @@ impl Voxobject{
         Ok(())
     }
 
+    /// Checks if a voxel is at the position in a Voxobject
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    /// let mut vox = Voxobject::new(10,10,10);
+    /// vox.add_voxel_at_pos(4,6,3,1);
+    /// assert_eq!(true, vox.is_voxel_at_pos(4,6,3));
+    /// ```
     pub fn is_voxel_at_pos(&self, x: u8, y: u8, z: u8) -> bool{
         for voxel in self.voxels.iter(){
             if voxel.position.0 == x &&
@@ -342,11 +351,33 @@ impl Voxobject{
 
     }
 
+    /// Loads a vox file from the string given
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut loaded_vox = Voxobject::load("my_vox.vox");
+    /// loaded_vox.set_all_palette_color(255,0,255,255);
+    /// loaded_vox.save_as_file("new_vox.vox");
+    /// ```
     pub fn load(file_path: &str) -> Voxobject{
         let mut file = File::open(file_path).expect("failed to open file");
         loader::load_voxobject(&mut file)
     }
 
+    /// Loads a voxobject from the file given
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    /// use std::fs::File;
+    ///
+    /// let mut vox_file = File::open("my_vox.vox").expect("failed to open file");
+    /// let mut loaded_vox = Voxobject::load_from_file(&mut vox_file);
+    /// loaded_vox.set_all_palette_color(255,0,255,255);
+    /// loaded_vox.save_as_file("new_vox.vox");
+    /// ```
     pub fn load_from_file(file: &mut File) -> Voxobject{
         loader::load_voxobject(file)
     }
