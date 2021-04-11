@@ -1,5 +1,6 @@
 use crate::voxel::*;
 use crate::color::*;
+use crate::convert::*;
 use crate::*;
 use std::ops::{Add, AddAssign};
 
@@ -382,4 +383,9 @@ impl PartialEq for Voxobject{
     fn eq(&self, other: &Voxobject) -> bool{
         self.voxels == other.voxels
     }
+}
+
+//used for gradient
+fn get_middle(a: u8, b: u8, point_between: f32) -> u8{
+    ((((b as i16)-(a as i16)) as f32 * point_between) + a as f32) as u8
 }
