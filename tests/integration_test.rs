@@ -75,3 +75,28 @@ fn large_cube(){
 
     vox.save_as_file("large.vox");
 }
+
+#[test]
+fn retain(){
+    let mut new_vox = Voxobject::new(10,10,10);
+    new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    new_vox.add_voxel_at_pos(1,1,1,5).unwrap();
+    new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    new_vox.add_voxel_at_pos(1,1,1,7).unwrap();
+
+    new_vox.retain_voxels(|voxel| voxel.colorindex == 6);
+
+    assert_eq!(2, new_vox.num_of_voxels());
+}
+
+#[test]
+fn voxel_change(){
+    let mut new_vox = Voxobject::new(10,10,10);
+    new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
+    new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
+    new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+
+    new_vox.change_voxels(|voxel| voxel.colorindex = 3);
+    new_vox.save_as_file("changed_voxels.vox");
+}

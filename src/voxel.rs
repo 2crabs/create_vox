@@ -25,6 +25,13 @@ impl Voxel{
             colorindex: colorindex_value
         }
     }
+
+    pub fn from_bytes(voxel_bytes: [u8; 4]) -> Voxel{
+        if voxel_bytes[3] == 0 {
+            panic!("could not parse voxel");
+        }
+        Voxel::new(voxel_bytes[0],voxel_bytes[1],voxel_bytes[2],voxel_bytes[3])
+    }
 }
 
 impl PartialEq for Voxel{

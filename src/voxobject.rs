@@ -289,6 +289,51 @@ impl Voxobject{
         }
     }
 
+    /// Keeps all of the voxels in the Voxobject that return true with the closure given
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut new_vox = Voxobject::new(10,10,10);
+    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    ///
+    /// new_vox.retain_voxels(|voxel| voxel.colorindex == 6);
+    ///
+    /// assert_eq!(2, new_vox.num_of_voxels());
+    /// ```
+    pub fn retain_voxels<T>(&mut self, closure: T)where
+        T: FnMut(&Voxel) -> bool,
+    {
+        self.voxels.retain(closure);
+    }
+
+    /// Changes all the voxels in the Voxobject with the closure
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut new_vox = Voxobject::new(10,10,10);
+    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    ///
+    /// new_vox.change_voxels(|voxel| voxel.colorindex = 3);
+    /// ```
+    pub fn change_voxels<T>(&mut self, mut closure: T) where
+        T: FnMut(&mut Voxel) -> ()
+    {
+        let voxel_iter = self.voxels.iter_mut();
+
+        for voxel in voxel_iter{
+            closure(voxel);
+        }
+    }
     ///Creates a file and saves the voxobject to it.
     ///
     /// # Example
