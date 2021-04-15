@@ -163,16 +163,12 @@ impl Voxobject {
     /// my_vox.set_size(5,5,5);
     /// ```
     pub fn set_size(&mut self, x: u16, y: u16, z: u16) {
-        //remove voxels not inside object when resized
-        self.voxels.retain(|voxel| {
-            (voxel.position.0 as u16) < x
-                && (voxel.position.1 as u16) < y
-                && (voxel.position.2 as u16) < z
-        });
         if x > 256 || y > 256 || z > 256 {
             panic!("size can not be greater than 256");
         }
         self.size = (x, y, z);
+        //remove voxels not inside object when resized
+        self.check_voxels_pos();
     }
 
     /// Changes the size of the voxobject to fit the voxels
@@ -376,7 +372,35 @@ impl Voxobject {
             closure(voxel);
         }
     }
-    ///Creates a file and saves the voxobject to it.
+
+    fn check_voxels_pos(&mut self){
+        let size = self.size;
+        self.voxels.retain(|voxel| {
+            (voxel.position.0 as u16) < size.0
+                && (voxel.position.1 as u16) < size.1
+                && (voxel.position.2 as u16) < size.2
+        });
+    }
+
+    /// Moves all voxels given amount and removes ones that are no longer inside the Voxobject bounds
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut my_vox = Voxobject::new(30,30,30);
+    /// my_vox.add_cube(0,0,0,10,10,10,1).unwrap();
+    /// my_vox.move_voxels(5, 4 ,5);
+    /// ```
+    pub fn move_voxels(&mut self, x: u8, y: u8, z: u8){
+        self.change_voxels(|voxel| {
+            voxel.position.0 += x;
+            voxel.position.1 += y;
+            voxel.position.2 += z;
+        });
+        self.check_voxels_pos();
+    }
+    ///Creates a file and saves the voxobject to it
     ///
     /// # Example
     /// ```
