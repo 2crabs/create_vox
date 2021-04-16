@@ -242,6 +242,25 @@ impl Voxobject {
         self.palette[new_index as usize].a = a;
     }
 
+    ///Gets the color from a index on the palette of the Voxobject
+    ///
+    /// #Example
+    /// ```
+    /// use create_vox::{Voxobject, Color};
+    /// let mut vox = Voxobject::new(10,10,10);
+    /// vox.set_palette_color(12, 30,0,40,255);
+    ///
+    /// assert!(Color::new(30, 0, 40, 255) == vox.get_palette_color(12));
+    /// ```
+    pub fn get_palette_color(&self, index: u8) -> Color{
+        if index == 0 {
+            panic!("index needs to be between 1 and 255");
+        }
+        let new_index = index - 1;
+
+        self.palette[new_index as usize]
+    }
+
     /// Sets color for all indexes on the palette
     ///
     /// # Example
