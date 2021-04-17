@@ -4,7 +4,8 @@ pub(crate) mod loader;
 mod voxel;
 mod voxobject;
 mod writing;
-mod model;
+pub mod model;
+pub(crate) mod riff;
 
 pub use color::*;
 use std::io::Write;

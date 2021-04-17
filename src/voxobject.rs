@@ -1,15 +1,16 @@
 use crate::color::*;
-use crate::convert::*;
 use crate::voxel::*;
 use crate::*;
 use std::fs::File;
-use std::ops::{Add, AddAssign};
+use std::ops::AddAssign;
+use crate::model::Model;
+use crate::riff::write_chunk;
 
 /// Holds all the information needed to create a vox file.
 #[derive(Clone)]
 pub struct Voxobject {
     size: (u16, u16, u16),
-    voxels: Vec<Voxel>,
+    models: Vec<Model>,
     pub(crate) palette: [Color; 256],
 }
 
@@ -28,7 +29,7 @@ impl Voxobject {
         }
         Voxobject {
             size: (size_x, size_y, size_z),
-            voxels: Vec::new(),
+            models: vec![Model::new(size_x, size_y, size_z)],
             palette: [Color {
                 r: 75,
                 g: 75,
@@ -78,7 +79,7 @@ impl Voxobject {
         {
             return Err("Voxel position greater than Voxobject size");
         }
-        self.voxels.push(new_voxel);
+        self.models[0].voxels.push(new_voxel);
         Ok(())
     }
 
@@ -98,7 +99,7 @@ impl Voxobject {
         {
             return Err("Position greater than Voxobject size");
         }
-        self.voxels.push(Voxel::new(x, y, z, voxel_index));
+        self.models[0].voxels.push(Voxel::new(x, y, z, voxel_index));
         Ok(())
     }
 
@@ -115,7 +116,7 @@ impl Voxobject {
     /// my_vox.clear_voxels();
     /// ```
     pub fn clear_voxels(&mut self) {
-        self.voxels.clear();
+        self.models[0].voxels.clear();
     }
 
     /// Resets all indexes in the pallete to the default color
@@ -150,7 +151,7 @@ impl Voxobject {
     /// assert_eq!(3, my_vox.num_of_voxels())
     /// ```
     pub fn num_of_voxels(&self) -> i32 {
-        self.voxels.len() as i32
+        self.models[0].voxels.len() as i32
     }
 
     /// Sets the size of a Voxobject
@@ -187,7 +188,7 @@ impl Voxobject {
         let mut smallest_pos: (u8, u8, u8) = (255, 255, 255);
 
         //get smallest position of the voxels
-        for voxel in self.voxels.iter() {
+        for voxel in self.models[0].voxels.iter() {
             if voxel.position.0 < smallest_pos.0 {
                 smallest_pos.0 = voxel.position.0
             }
@@ -199,7 +200,7 @@ impl Voxobject {
             }
         }
         //move voxels
-        for voxel in self.voxels.iter_mut() {
+        for voxel in self.models[0].voxels.iter_mut() {
             voxel.position = (
                 voxel.position.0 - smallest_pos.0,
                 voxel.position.1 - smallest_pos.1,
@@ -207,7 +208,7 @@ impl Voxobject {
             )
         }
 
-        for voxel in self.voxels.iter() {
+        for voxel in self.models[0].voxels.iter() {
             if (voxel.position.0 as u16) > new_size.0 - 1 {
                 new_size.0 = (voxel.position.0 + 1) as u16
             }
@@ -322,7 +323,7 @@ impl Voxobject {
     /// assert_eq!(true, vox.is_voxel_at_pos(4,6,3));
     /// ```
     pub fn is_voxel_at_pos(&self, x: u8, y: u8, z: u8) -> bool {
-        for voxel in self.voxels.iter() {
+        for voxel in self.models[0].voxels.iter() {
             if voxel.position.0 == x && voxel.position.1 == y && voxel.position.2 == z {
                 return true;
             }
@@ -331,17 +332,8 @@ impl Voxobject {
         return false;
     }
 
-    fn write_voxels(&self, buf_writer: &mut std::io::BufWriter<std::fs::File>) {
-        for i in 0..self.voxels.len() {
-            buf_writer
-                .write(&[
-                    self.voxels[i].position.0,
-                    self.voxels[i].position.1,
-                    self.voxels[i].position.2,
-                    self.voxels[i].colorindex,
-                ])
-                .expect("failed to write voxels");
-        }
+    pub fn add_model(&mut self, x: u16, y: u16, z: u16){
+        self.models.push(Model::new(x, y, z));
     }
 
     /// Keeps all of the voxels in the Voxobject that return true with the closure given
@@ -364,7 +356,7 @@ impl Voxobject {
     where
         T: FnMut(&Voxel) -> bool,
     {
-        self.voxels.retain(closure);
+        self.models[0].voxels.retain(closure);
     }
 
     /// Changes all the voxels in the Voxobject with the closure
@@ -385,7 +377,7 @@ impl Voxobject {
     where
         T: FnMut(&mut Voxel) -> (),
     {
-        let voxel_iter = self.voxels.iter_mut();
+        let voxel_iter = self.models[0].voxels.iter_mut();
 
         for voxel in voxel_iter {
             closure(voxel);
@@ -394,7 +386,7 @@ impl Voxobject {
 
     fn check_voxels_pos(&mut self){
         let size = self.size;
-        self.voxels.retain(|voxel| {
+        self.models[0].voxels.retain(|voxel| {
             (voxel.position.0 as u16) < size.0
                 && (voxel.position.1 as u16) < size.1
                 && (voxel.position.2 as u16) < size.2
@@ -432,56 +424,22 @@ impl Voxobject {
     /// ```
     pub fn save_as_file(&mut self, name: &str) {
         let empty_slice: &[u8] = &[0, 0, 0, 0];
-        let size_slice: &[u8] = &[
-            u16_to_array(self.size.0)[0],
-            u16_to_array(self.size.0)[1],
-            0,
-            0,
-            u16_to_array(self.size.1)[0],
-            u16_to_array(self.size.1)[1],
-            0,
-            0,
-            u16_to_array(self.size.2)[0],
-            u16_to_array(self.size.2)[1],
-            0,
-            0,
-        ];
         let file = std::fs::File::create(name).expect("Error");
         let mut buf_writer = std::io::BufWriter::new(file);
 
-        let number_of_voxels = self.voxels.len() as u32;
+        let number_of_voxels = self.models[0].voxels.len() as u32;
 
         write_string_literal(&mut buf_writer, "VOX ");
         write_slice(&mut buf_writer, empty_slice);
 
-        write_string_literal(&mut buf_writer, "MAIN");
-        write_slice(&mut buf_writer, empty_slice);
-        //writes number of bytes for children
-        write_slice(&mut buf_writer, &i32_to_array((number_of_voxels * 4) + 41));
+        write_chunk("MAIN", 0, (number_of_voxels * 4) + 41, &mut buf_writer);
 
-        //size of the voxobject
-        write_string_literal(&mut buf_writer, "SIZE");
-        //Size holds 12 bytes
-        write_slice(&mut buf_writer, &[12, 0, 0, 0]);
-        write_slice(&mut buf_writer, empty_slice);
-        //writes the slice for size
-        write_slice(&mut buf_writer, size_slice);
-
-        //this is all the voxels the voxobject has
-        write_string_literal(&mut buf_writer, "XYZI");
-        //writes size of this chunk. each voxel holds 4 bytes and then another 4 bytes for how many voxels there are
-        write_slice(&mut buf_writer, &i32_to_array((number_of_voxels * 4) + 4));
-        write_slice(&mut buf_writer, empty_slice);
-        //number voxels in the voxobject
-        write_slice(&mut buf_writer, &i32_to_array(number_of_voxels));
-        //writes all of the voxels
-        self.write_voxels(&mut buf_writer);
+        for model in self.models.iter() {
+            model.write(&mut buf_writer)
+        }
 
         //the palette
-        write_string_literal(&mut buf_writer, "RGBA");
-        //writes size of chunk which is 4*256 bytes
-        write_slice(&mut buf_writer, &[0, 4, 0, 0]);
-        write_slice(&mut buf_writer, empty_slice);
+        write_chunk("RGBA", 1024, 0, &mut buf_writer);
         //writes all of the colors in the palette
         for i in 0..256 {
             write_slice(
@@ -531,48 +489,48 @@ impl Voxobject {
     }
 }
 
-impl Add for Voxobject {
-    type Output = Voxobject;
+// impl Add for Voxobject {
+//     type Output = Voxobject;
+//
+//     fn add(self, other: Voxobject) -> Voxobject {
+//         let mut new_voxobject = Voxobject::new(self.size.0, self.size.1, self.size.2);
+//         let mut other_voxels = other.voxels;
+//         new_voxobject.voxels = self.models[0].voxels;
+//         new_voxobject.palette = self.palette;
+//         new_voxobject.voxels.append(&mut other_voxels);
+//
+//         new_voxobject
+//     }
+// }
 
-    fn add(self, other: Voxobject) -> Voxobject {
-        let mut new_voxobject = Voxobject::new(self.size.0, self.size.1, self.size.2);
-        let mut other_voxels = other.voxels;
-        new_voxobject.voxels = self.voxels;
-        new_voxobject.palette = self.palette;
-        new_voxobject.voxels.append(&mut other_voxels);
+// impl Add<Voxel> for Voxobject {
+//     type Output = Voxobject;
+//
+//     fn add(self, other: Voxel) -> Voxobject {
+//         let mut new_voxobject = self.clone();
+//         new_voxobject.voxels.push(other);
+//
+//         new_voxobject
+//     }
+// }
 
-        new_voxobject
-    }
-}
-
-impl Add<Voxel> for Voxobject {
-    type Output = Voxobject;
-
-    fn add(self, other: Voxel) -> Voxobject {
-        let mut new_voxobject = self.clone();
-        new_voxobject.voxels.push(other);
-
-        new_voxobject
-    }
-}
-
-impl AddAssign for Voxobject {
-    fn add_assign(&mut self, other: Voxobject) {
-        self.voxels.append(&mut other.voxels.clone());
-    }
-}
+// impl AddAssign for Voxobject {
+//     fn add_assign(&mut self, other: Voxobject) {
+//         self.models[0].voxels.append(&mut other.voxels.clone());
+//     }
+// }
 
 impl AddAssign<Voxel> for Voxobject {
     fn add_assign(&mut self, other: Voxel) {
-        self.voxels.push(other);
+        self.models[0].voxels.push(other);
     }
 }
 
-impl PartialEq for Voxobject {
-    fn eq(&self, other: &Voxobject) -> bool {
-        self.voxels == other.voxels
-    }
-}
+// impl PartialEq for Voxobject {
+//     fn eq(&self, other: &Voxobject) -> bool {
+//         self.models[0].voxels == other..models[0].voxels
+//     }
+// }
 
 //used for gradient
 fn get_middle(a: u8, b: u8, point_between: f32) -> u8 {
