@@ -96,3 +96,33 @@ pub struct nSHP{
     // }xN
     model_id: i32
 }
+
+//returns starting index
+pub fn find_chunk(contents: Vec<u8>, name: String) -> Result<usize, ()>{
+
+    //currently breaks if can not find name
+    let mut chunk_name = String::new();
+    let mut chunk_size: u32;
+    let mut current_pos = 8;
+
+    while chunk_name != name {
+        //gets name of chunk
+        chunk_name = String::from_utf8(
+            contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
+        )
+            .expect("failed to create string");
+        println!("{}", chunk_name);
+        if chunk_name == name{
+            return Ok(current_pos as usize)
+        }
+        current_pos += 4;
+        chunk_size = u32::from_le_bytes(
+            contents[(current_pos as usize)..((current_pos + 4) as usize)]
+                .try_into()
+                .expect("failed to read"),
+        );
+        current_pos += chunk_size + 8;
+    };
+
+    Err(())
+}
