@@ -5,7 +5,7 @@ mod voxel;
 mod voxobject;
 mod writing;
 pub mod model;
-pub(crate) mod riff;
+pub mod riff;
 
 pub use color::*;
 use std::io::Write;
