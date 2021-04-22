@@ -17,12 +17,12 @@ pub struct VoxString{
 }
 
 impl VoxString{
-    pub fn read(input: &[u8]) -> VoxString{
-        let size = i32::from_le_bytes(input[0..4].try_into().expect("failed to read"));
-        let string = String::from_utf8(input[4..((4 + size) as usize)].to_vec()).unwrap();
+    pub fn read(input: &[u8], cursor: &mut i32) -> VoxString{
+        let size = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let string = String::from_utf8(input[(4 + *cursor as usize)..((4 + size + *cursor) as usize)].to_vec()).unwrap();
+        *cursor = *cursor + 4 + size;
 
         VoxString::new(size, string)
-
     }
 
     pub fn new(size: i32, content: String) -> VoxString{
@@ -37,6 +37,26 @@ pub struct Dict{
     num_of_pairs: i32,
     //(key, value)
     pairs: Vec<(VoxString, VoxString)>
+}
+
+impl Dict{
+    //todo change input to Vec<u8>
+    pub fn read(input: &[u8], cursor: &mut i32) -> Dict{
+        let mut pairs = Vec::new();
+
+        let size = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+        for i in 0..size {
+            let key = VoxString::read(input, cursor);
+            let value = VoxString::read(input, cursor);
+            pairs.push((key, value))
+        }
+
+        Dict{
+            num_of_pairs: size,
+            pairs
+        }
+    }
 }
 
 pub struct Rotation {

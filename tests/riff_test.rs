@@ -5,7 +5,7 @@ use std::io::Read;
 #[test]
 fn riff_string(){
     let content = &[2, 0, 0, 0, 104, 105];
-    let my_string = VoxString::read(content).content;
+    let my_string = VoxString::read(content, &mut 0).content;
 
     assert_eq!(String::from("hi"), my_string);
 }
@@ -14,7 +14,7 @@ fn riff_string(){
 #[should_panic]
 fn riff_string_fail(){
     let content = &[2, 0, 0, 0, 104, 105];
-    let my_string = VoxString::read(content).content;
+    let my_string = VoxString::read(content, &mut 0).content;
 
     assert_eq!(String::from("HI"), my_string);
 }
@@ -26,6 +26,6 @@ fn chunk_read(){
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let a = find_chunk(contents, String::from("nTRN")).unwrap();
-    println!("result was: {}", a);
+    //4 4 4 20
+    create_vox::riff::Dict::read(contents.as_slice(), &mut 144);
 }
