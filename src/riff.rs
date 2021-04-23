@@ -10,7 +10,7 @@ pub fn write_chunk(name: &str, size: u32, children_size: u32, writer: &mut BufWr
     write_slice(writer, &i32_to_array(children_size));
 }
 
-//maybe use const generic for this
+#[derive(Debug)]
 pub struct VoxString{
     pub size: i32,
     pub content: String
@@ -33,10 +33,11 @@ impl VoxString{
     }
 }
 
+#[derive(Debug)]
 pub struct Dict{
-    num_of_pairs: i32,
+    pub num_of_pairs: i32,
     //(key, value)
-    pairs: Vec<(VoxString, VoxString)>
+    pub pairs: Vec<(VoxString, VoxString)>
 }
 
 impl Dict{
@@ -72,28 +73,59 @@ pub struct Rotation {
 
 //transform node chunk
 #[allow(non_camel_case_types)]
+#[derive(Debug)]
 pub struct nTRN {
-    node_id: i32,
-    //need to figure out dict for node_attributes
-    child_node_id: i32,
-    reserved_id: i32,
+    pub node_id: i32,
+    pub node_attributes: Dict,
+    pub child_node_id: i32,
+    pub reserved_id: i32,
     //must be -1
-    layer_id: i32,
+    pub layer_id: i32,
     //must be 1
-    num_of_frames: i32,
+    pub num_of_frames: i32,
     // for each frame
     // DICT	: frame attributes
     // (_r : int8) ROTATION, see (c)
     // (_t : int32x3) translation
     // }xN
-    frame_attributes: Dict
+    pub frame_attributes: Dict
+}
+
+impl nTRN{
+    pub fn read(input: &[u8], cursor: &mut i32) -> nTRN{
+        *cursor += 12;
+        //need to make function for reading i32
+        let node_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+        let node_attributes = Dict::read(input, cursor);
+        let child_node_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+        let reserved_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+        let layer_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+        let num_of_frames = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        *cursor += 4;
+
+        let frame_attributes = Dict::read(input, cursor);
+
+        nTRN{
+            node_id,
+            node_attributes,
+            child_node_id,
+            reserved_id,
+            layer_id,
+            num_of_frames,
+            frame_attributes
+        }
+    }
 }
 
 //group node chunk
 #[allow(non_camel_case_types)]
 pub struct nGRP{
     node_id: i32,
-    //need to figure out dict for node_attributes
+    node_attributes: Dict,
     num_of_children_nodes: i32,
     // for each child
     // {
@@ -106,7 +138,7 @@ pub struct nGRP{
 #[allow(non_camel_case_types)]
 pub struct nSHP{
     node_id: i32,
-    //need to figure out dict for node_attributes
+    node_attributes: Dict,
     //must be 1
     num_of_models: i32,
     // for each model
@@ -131,7 +163,6 @@ pub fn find_chunk(contents: Vec<u8>, name: String) -> Result<usize, ()>{
             contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
         )
             .expect("failed to create string");
-        println!("{}", chunk_name);
         if chunk_name == name{
             return Ok(current_pos as usize)
         }

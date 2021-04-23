@@ -26,6 +26,18 @@ fn chunk_read(){
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    //4 4 4 20
-    create_vox::riff::Dict::read(contents.as_slice(), &mut 144);
+    let mut pos = create_vox::riff::find_chunk(contents.clone(), String::from("nTRN")).unwrap() as i32;
+    //start of 2nd nTRN chunk. found manually.
+    pos = 184;
+    let chunk = create_vox::riff::nTRN::read(contents.as_slice(), &mut pos);
+
+    println!("{:?}", chunk);
+    println!("\n");
+    println!("node id: {}", chunk.node_id);
+    println!("node attributes: {:?}", chunk.node_attributes);
+    println!("child node id: {}", chunk.child_node_id);
+    println!("reserved id: {}", chunk.reserved_id);
+    println!("layer id: {}", chunk.layer_id);
+    println!("number of frames: {}", chunk.num_of_frames);
+    println!("frame attributes: {:?}", chunk.frame_attributes);
 }
