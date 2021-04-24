@@ -17,7 +17,7 @@ pub struct VoxString{
 }
 
 impl VoxString{
-    pub fn read(input: &[u8], cursor: &mut i32) -> VoxString{
+    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> VoxString{
         let size = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
         let string = String::from_utf8(input[(4 + *cursor as usize)..((4 + size + *cursor) as usize)].to_vec()).unwrap();
         *cursor = *cursor + 4 + size;
@@ -42,7 +42,7 @@ pub struct Dict{
 
 impl Dict{
     //todo change input to Vec<u8>
-    pub fn read(input: &[u8], cursor: &mut i32) -> Dict{
+    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Dict{
         let mut pairs = Vec::new();
 
         let size = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
@@ -92,7 +92,7 @@ pub struct nTRN {
 }
 
 impl nTRN{
-    pub fn read(input: &[u8], cursor: &mut i32) -> nTRN{
+    pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> nTRN{
         *cursor += 12;
         //need to make function for reading i32
         let node_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
@@ -149,22 +149,27 @@ pub struct nSHP{
     model_id: i32
 }
 
-//returns starting index
-pub fn find_chunk(contents: Vec<u8>, name: String) -> Result<usize, ()>{
+//returns starting index. number 1 should return 1st chunk
+pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize, ()>{
 
     //currently breaks if can not find name
     let mut chunk_name = String::new();
     let mut chunk_size: u32;
     let mut current_pos = 8;
 
-    while chunk_name != name {
+    let mut num_chunk = 1;
+
+    while chunk_name != name || num_chunk != (number + 1) {
         //gets name of chunk
         chunk_name = String::from_utf8(
             contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
         )
             .expect("failed to create string");
         if chunk_name == name{
-            return Ok(current_pos as usize)
+            if num_chunk == number {
+                return Ok(current_pos as usize)
+            }
+            num_chunk += 1;
         }
         current_pos += 4;
         chunk_size = u32::from_le_bytes(
