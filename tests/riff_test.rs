@@ -40,3 +40,29 @@ fn chunk_read(){
     println!("number of frames: {}", chunk.num_of_frames);
     println!("frame attributes: {:?}", chunk.frame_attributes);
 }
+
+#[test]
+fn ngrp_read(){
+    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)
+        .expect("failed to read file contents");
+
+    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("nGRP"), 1).unwrap() as i32;
+    let chunk = create_vox::riff::nGRP::read(&contents, &mut cursor);
+
+    println!("{:?}", chunk);
+}
+
+#[test]
+fn nshp_read(){
+    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)
+        .expect("failed to read file contents");
+
+    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("nSHP"), 1).unwrap() as i32;
+    let chunk = create_vox::riff::nSHP::read(&contents, &mut cursor);
+
+    println!("{:?}", chunk);
+}

@@ -41,7 +41,6 @@ pub struct Dict{
 }
 
 impl Dict{
-    //todo change input to Vec<u8>
     pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Dict{
         let mut pairs = Vec::new();
 
@@ -123,6 +122,7 @@ impl nTRN{
 
 //group node chunk
 #[allow(non_camel_case_types)]
+#[derive(Debug)]
 pub struct nGRP{
     node_id: i32,
     node_attributes: Dict,
@@ -134,8 +134,31 @@ pub struct nGRP{
     child_id: Vec<i32>
 }
 
+impl nGRP{
+    pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> nGRP{
+        *cursor += 12;
+        let node_id = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let node_attributes = Dict::read(input, cursor);
+        let num_of_children_nodes = i32_from_vec(input, cursor);
+        let mut child_id = Vec::new();
+        for i in 0..num_of_children_nodes{
+            child_id.push(i32_from_vec(input, cursor));
+            *cursor += 4;
+        }
+
+        nGRP{
+            node_id,
+            node_attributes,
+            num_of_children_nodes,
+            child_id
+        }
+    }
+}
+
 //shape node chunk
 #[allow(non_camel_case_types)]
+#[derive(Debug)]
 pub struct nSHP{
     node_id: i32,
     node_attributes: Dict,
@@ -146,9 +169,31 @@ pub struct nSHP{
     // int32	: model id
     // DICT	: model attributes : reserved
     // }xN
-    model_id: i32
+    //only one model so only need one of each. may need to change if format changes
+    model_id: i32,
+    model_attributes: Dict
 }
 
+impl nSHP{
+    pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> nSHP{
+        *cursor += 12;
+        let node_id = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let node_attributes = Dict::read(input, cursor);
+        let num_of_models = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let model_id = i32_from_vec(input, cursor);
+        let model_attributes = Dict::read(input, cursor);
+
+        nSHP{
+            node_id,
+            node_attributes,
+            num_of_models,
+            model_id,
+            model_attributes
+        }
+    }
+}
 //returns starting index. number 1 should return 1st chunk
 pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize, ()>{
 
@@ -181,4 +226,8 @@ pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize
     };
 
     Err(())
+}
+
+pub fn i32_from_vec(vec: &Vec<u8>, pos: &mut i32) -> i32{
+    i32::from_le_bytes(vec[(*pos as usize)..(4 + *pos as usize)].try_into().expect("failed to create i32"))
 }
