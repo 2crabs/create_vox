@@ -27,7 +27,7 @@ fn chunk_read(){
         .expect("failed to read file contents");
 
     //start of first chunk
-    let mut pos = create_vox::riff::find_chunk(&contents, String::from("nTRN"), 1).unwrap() as i32;
+    let mut pos = create_vox::riff::find_chunk(&contents, String::from("nTRN"), 2).unwrap() as i32;
     let chunk = create_vox::riff::nTRN::read(&contents, &mut pos);
 
     println!("{:?}", chunk);

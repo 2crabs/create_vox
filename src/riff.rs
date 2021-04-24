@@ -25,6 +25,10 @@ impl VoxString{
         VoxString::new(size, string)
     }
 
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_slice(buf_writer, &self.size.to_le_bytes());
+        write_slice(buf_writer, self.content.as_bytes());
+    }
     pub fn new(size: i32, content: String) -> VoxString{
         VoxString{
             size,
@@ -46,7 +50,7 @@ impl Dict{
 
         let size = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
         *cursor += 4;
-        for i in 0..size {
+        for _i in 0..size {
             let key = VoxString::read(input, cursor);
             let value = VoxString::read(input, cursor);
             pairs.push((key, value))
@@ -55,6 +59,14 @@ impl Dict{
         Dict{
             num_of_pairs: size,
             pairs
+        }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_slice(buf_writer, &self.num_of_pairs.to_le_bytes());
+        for pair in self.pairs.iter() {
+            pair.0.write(buf_writer);
+            pair.1.write(buf_writer);
         }
     }
 }
@@ -94,16 +106,16 @@ impl nTRN{
     pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> nTRN{
         *cursor += 12;
         //need to make function for reading i32
-        let node_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let node_id = i32_from_vec(input, cursor);
         *cursor += 4;
         let node_attributes = Dict::read(input, cursor);
-        let child_node_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let child_node_id = i32_from_vec(input, cursor);
         *cursor += 4;
-        let reserved_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let reserved_id = i32_from_vec(input, cursor);
         *cursor += 4;
-        let layer_id = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let layer_id = i32_from_vec(input, cursor);
         *cursor += 4;
-        let num_of_frames = i32::from_le_bytes(input[(*cursor as usize)..(4 + *cursor as usize)].try_into().expect("failed to read"));
+        let num_of_frames = i32_from_vec(input, cursor);
         *cursor += 4;
 
         let frame_attributes = Dict::read(input, cursor);
@@ -117,6 +129,16 @@ impl nTRN{
             num_of_frames,
             frame_attributes
         }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_slice(buf_writer, &self.node_id.to_le_bytes());
+        self.node_attributes.write(buf_writer);
+        write_slice(buf_writer, &self.child_node_id.to_le_bytes());
+        write_slice(buf_writer, &self.reserved_id.to_le_bytes());
+        write_slice(buf_writer, &self.layer_id.to_le_bytes());
+        write_slice(buf_writer, &self.num_of_frames.to_le_bytes());
+        self.frame_attributes.write(buf_writer);
     }
 }
 
@@ -142,7 +164,7 @@ impl nGRP{
         let node_attributes = Dict::read(input, cursor);
         let num_of_children_nodes = i32_from_vec(input, cursor);
         let mut child_id = Vec::new();
-        for i in 0..num_of_children_nodes{
+        for _i in 0..num_of_children_nodes{
             child_id.push(i32_from_vec(input, cursor));
             *cursor += 4;
         }
@@ -152,6 +174,15 @@ impl nGRP{
             node_attributes,
             num_of_children_nodes,
             child_id
+        }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_slice(buf_writer, &self.node_id.to_le_bytes());
+        self.node_attributes.write(buf_writer);
+        write_slice(buf_writer, &self.num_of_children_nodes.to_le_bytes());
+        for child_id in self.child_id.iter(){
+            write_slice(buf_writer, &child_id.to_le_bytes());
         }
     }
 }
@@ -192,6 +223,15 @@ impl nSHP{
             model_id,
             model_attributes
         }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_slice(buf_writer, &self.node_id.to_le_bytes());
+        self.node_attributes.write(buf_writer);
+        write_slice(buf_writer, &self.num_of_models.to_le_bytes());
+        write_slice(buf_writer, &self.model_id.to_le_bytes());
+        self.model_attributes.write(buf_writer);
+
     }
 }
 //returns starting index. number 1 should return 1st chunk
