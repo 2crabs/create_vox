@@ -293,9 +293,42 @@ pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize
                 .expect("failed to read"),
         );
         current_pos += chunk_size + 8;
+        if current_pos >= contents.len() as u32 {
+            return Err(())
+        }
     };
 
     Err(())
+}
+
+pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
+    let mut chunk_name = String::new();
+    let mut chunk_size: u32;
+    let mut current_pos: u32 = 8;
+
+    let mut num_of_chunks = 0;
+
+    while (current_pos as usize) < contents.len() {
+        //gets name of chunk
+        chunk_name = String::from_utf8(
+            contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
+        )
+            .expect("failed to create string");
+
+        if chunk_name == name{
+            num_of_chunks += 1;
+        }
+
+        current_pos += 4;
+        chunk_size = u32::from_le_bytes(
+            contents[(current_pos as usize)..((current_pos + 4) as usize)]
+                .try_into()
+                .expect("failed to read"),
+        );
+        current_pos += chunk_size + 8;
+    };
+
+    num_of_chunks
 }
 
 pub fn i32_from_vec(vec: &Vec<u8>, pos: &mut i32) -> i32{

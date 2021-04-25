@@ -68,3 +68,13 @@ fn nshp_read(){
     println!("{:?}", chunk);
     println!("size: {}", chunk.get_size());
 }
+
+#[test]
+fn num_chunk(){
+    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)
+        .expect("failed to read file contents");
+
+    println!("size chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("SIZE")));
+}

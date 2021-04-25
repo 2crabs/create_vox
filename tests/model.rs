@@ -20,5 +20,4 @@ fn read_model(){
         .expect("failed to read file contents");
 
     Model::read(&contents, &mut (riff::find_chunk(&contents, String::from("SIZE"), 1).unwrap() as i32));
-
 }

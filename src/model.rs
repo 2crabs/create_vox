@@ -87,4 +87,8 @@ impl Model{
             voxels
         }
     }
+
+    pub fn get_size(&self) -> i32{
+        self.voxels.len() as i32 * 4 + 4
+    }
 }
