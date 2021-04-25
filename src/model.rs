@@ -59,4 +59,32 @@ impl Model{
                 .expect("failed to write voxels");
         }
     }
+
+    //start at size chunk
+    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Model{
+        use crate::riff::i32_from_vec;
+        *cursor += 12;
+        let size_x = i32_from_vec(input, cursor) as u16;
+        *cursor += 4;
+        let size_y = i32_from_vec(input, cursor) as u16;
+        *cursor += 4;
+        let size_z = i32_from_vec(input, cursor) as u16;
+        *cursor += 16;
+
+        let num_of_voxels = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let mut voxels = Vec::new();
+        for _i in 0..num_of_voxels{
+            let x = input[*cursor as usize];
+            let y = input[(*cursor + 1) as usize];
+            let z= input[(*cursor + 2) as usize];
+            let i = input[(*cursor + 3) as usize];
+            voxels.push(Voxel::new(x, y, z, i))
+        }
+
+        Model{
+            size: (size_x, size_y, size_z),
+            voxels
+        }
+    }
 }

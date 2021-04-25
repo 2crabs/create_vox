@@ -35,6 +35,11 @@ impl VoxString{
             content
         }
     }
+
+    //returns size in bytes
+    pub fn get_size(&self) -> i32{
+        4 + self.size
+    }
 }
 
 #[derive(Debug)]
@@ -68,6 +73,15 @@ impl Dict{
             pair.0.write(buf_writer);
             pair.1.write(buf_writer);
         }
+    }
+
+    pub fn get_size(&self) -> i32{
+        let mut size = 4;
+        for pair in self.pairs.iter(){
+            size += pair.0.get_size() + pair.1.get_size();
+        }
+
+        size
     }
 }
 
@@ -132,6 +146,8 @@ impl nTRN{
     }
 
     pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        //change
+        write_chunk("nTRN", self.get_size() as u32, 0, buf_writer);
         write_slice(buf_writer, &self.node_id.to_le_bytes());
         self.node_attributes.write(buf_writer);
         write_slice(buf_writer, &self.child_node_id.to_le_bytes());
@@ -139,6 +155,10 @@ impl nTRN{
         write_slice(buf_writer, &self.layer_id.to_le_bytes());
         write_slice(buf_writer, &self.num_of_frames.to_le_bytes());
         self.frame_attributes.write(buf_writer);
+    }
+
+    pub fn get_size(&self) -> i32{
+        20 + self.node_attributes.get_size() + self.frame_attributes.get_size()
     }
 }
 
@@ -178,12 +198,17 @@ impl nGRP{
     }
 
     pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_chunk("nGRP", self.get_size() as u32, 0, buf_writer);
         write_slice(buf_writer, &self.node_id.to_le_bytes());
         self.node_attributes.write(buf_writer);
         write_slice(buf_writer, &self.num_of_children_nodes.to_le_bytes());
         for child_id in self.child_id.iter(){
             write_slice(buf_writer, &child_id.to_le_bytes());
         }
+    }
+
+    pub fn get_size(&self) -> i32{
+        8 + self.node_attributes.get_size() + self.child_id.len() as i32 * 4
     }
 }
 
@@ -226,12 +251,17 @@ impl nSHP{
     }
 
     pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_chunk("nSHP", self.get_size() as u32, 0, buf_writer);
         write_slice(buf_writer, &self.node_id.to_le_bytes());
         self.node_attributes.write(buf_writer);
         write_slice(buf_writer, &self.num_of_models.to_le_bytes());
         write_slice(buf_writer, &self.model_id.to_le_bytes());
         self.model_attributes.write(buf_writer);
 
+    }
+
+    pub fn get_size(&self) -> i32{
+        12 + self.node_attributes.get_size() + self.model_attributes.get_size()
     }
 }
 //returns starting index. number 1 should return 1st chunk

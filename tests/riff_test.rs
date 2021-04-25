@@ -39,6 +39,7 @@ fn chunk_read(){
     println!("layer id: {}", chunk.layer_id);
     println!("number of frames: {}", chunk.num_of_frames);
     println!("frame attributes: {:?}", chunk.frame_attributes);
+    println!("size: {}", chunk.get_size())
 }
 
 #[test]
@@ -65,4 +66,5 @@ fn nshp_read(){
     let chunk = create_vox::riff::nSHP::read(&contents, &mut cursor);
 
     println!("{:?}", chunk);
+    println!("size: {}", chunk.get_size());
 }
