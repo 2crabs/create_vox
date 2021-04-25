@@ -70,6 +70,19 @@ fn nshp_read(){
 }
 
 #[test]
+fn matl_read(){
+    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)
+        .expect("failed to read file contents");
+
+    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("MATL"), 1).unwrap() as i32;
+
+    let chunk = create_vox::riff::MATL::read(&contents, &mut cursor);
+    println!("{:?}", chunk)
+}
+
+#[test]
 fn num_chunk(){
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();

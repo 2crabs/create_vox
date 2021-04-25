@@ -264,6 +264,37 @@ impl nSHP{
         12 + self.node_attributes.get_size() + self.model_attributes.get_size()
     }
 }
+
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+pub struct MATL{
+    material_id: i32,
+    properties: Dict
+}
+
+impl MATL{
+    pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> MATL{
+        *cursor += 12;
+        let material_id = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let properties = Dict::read(input, cursor);
+
+        MATL{
+            material_id,
+            properties
+        }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_chunk("MATL", self.get_size() as u32, 0, buf_writer);
+        write_slice(buf_writer, &self.material_id.to_le_bytes());
+        self.properties.write(buf_writer);
+    }
+
+    pub fn get_size(&self) -> i32{
+        4 + self.properties.get_size()
+    }
+}
 //returns starting index. number 1 should return 1st chunk
 pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize, ()>{
 
