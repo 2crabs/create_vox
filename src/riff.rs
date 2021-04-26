@@ -93,7 +93,8 @@ pub struct Rotation {
     // 4   : 0 : the sign in the first row (0 : positive; 1 : negative)
     // 5   : 1 : the sign in the second row (0 : positive; 1 : negative)
     // 6   : 1 : the sign in the third row (0 : positive; 1 : negative)
-    value: u8,
+
+    //value: u8,
 }
 
 //transform node chunk
@@ -295,6 +296,44 @@ impl MATL{
         4 + self.properties.get_size()
     }
 }
+
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+pub struct LAYR{
+    layer_id: i32,
+    layer_attributes: Dict,
+    //must be -1
+    reserved_id: i32
+}
+
+impl LAYR{
+    pub fn read(input:  &Vec<u8>, cursor: &mut i32) -> LAYR{
+        *cursor += 12;
+        let layer_id = i32_from_vec(input, cursor);
+        *cursor += 4;
+        let layer_attributes = Dict::read(input, cursor);
+        let reserved_id = i32_from_vec(input, cursor);
+        *cursor += 4;
+
+        LAYR{
+            layer_id,
+            layer_attributes,
+            reserved_id
+        }
+    }
+
+    pub fn write(&self, buf_writer: &mut BufWriter<File>){
+        write_chunk("LAYR", self.get_size() as u32, 0, buf_writer);
+        write_slice(buf_writer, &self.layer_id.to_le_bytes());
+        self.layer_attributes.write(buf_writer);
+        write_slice(buf_writer, &self.reserved_id.to_le_bytes());
+    }
+
+    pub fn get_size(&self) -> i32{
+        8 + self.layer_attributes.get_size()
+    }
+}
+
 //returns starting index. number 1 should return 1st chunk
 pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize, ()>{
 
@@ -333,7 +372,7 @@ pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize
 }
 
 pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
-    let mut chunk_name = String::new();
+    let mut chunk_name;
     let mut chunk_size: u32;
     let mut current_pos: u32 = 8;
 
@@ -364,4 +403,12 @@ pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
 
 pub fn i32_from_vec(vec: &Vec<u8>, pos: &mut i32) -> i32{
     i32::from_le_bytes(vec[(*pos as usize)..(4 + *pos as usize)].try_into().expect("failed to create i32"))
+}
+
+pub fn parse_string(string: String) -> Vec<i32>{
+    let a: Vec<&str> = string.split(' ').collect();
+    let mut num: Vec<i32> = Vec::new();
+    a.iter().for_each(|string| num.push(string.parse().unwrap()));
+
+    num
 }

@@ -89,5 +89,5 @@ fn num_chunk(){
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    println!("size chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("SIZE")));
+    println!("size chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("LAYR")));
 }

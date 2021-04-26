@@ -6,6 +6,7 @@ mod voxobject;
 mod writing;
 pub mod model;
 pub mod riff;
+pub mod node;
 
 pub use color::*;
 use std::io::Write;
