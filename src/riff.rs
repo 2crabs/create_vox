@@ -3,6 +3,8 @@ use std::fs::File;
 use crate::writing::*;
 use crate::convert::*;
 use std::convert::TryInto;
+use crate::node::{Transform, Node, NodeType};
+use std::collections::HashMap;
 
 pub fn write_chunk(name: &str, size: u32, children_size: u32, writer: &mut BufWriter<File>){
     write_string_literal(writer, name);
@@ -161,6 +163,32 @@ impl nTRN{
     pub fn get_size(&self) -> i32{
         20 + self.node_attributes.get_size() + self.frame_attributes.get_size()
     }
+
+    pub fn to_node(&self) -> Node{
+        let data = Transform{
+            layer: self.layer_id,
+            rotation: 0,
+            translation: match self.has_translation() {
+                Some(trans) => trans,
+                None => (0, 0, 0)
+            }
+        };
+
+        Node::new(NodeType::Transform(data))
+    }
+
+    pub fn has_translation(&self) -> Option<(i32, i32, i32)>{
+        if self.frame_attributes.pairs.len() >= 1 {
+            for attribute in self.frame_attributes.pairs.iter() {
+                if attribute.0.content == String::from("_t"){
+                    let parsed = parse_string(&attribute.1.content);
+                    return Some((parsed[0], parsed[1], parsed[2]))
+                }
+            }
+        }
+
+        None
+    }
 }
 
 //group node chunk
@@ -184,6 +212,7 @@ impl nGRP{
         *cursor += 4;
         let node_attributes = Dict::read(input, cursor);
         let num_of_children_nodes = i32_from_vec(input, cursor);
+        *cursor += 4;
         let mut child_id = Vec::new();
         for _i in 0..num_of_children_nodes{
             child_id.push(i32_from_vec(input, cursor));
@@ -210,6 +239,10 @@ impl nGRP{
 
     pub fn get_size(&self) -> i32{
         8 + self.node_attributes.get_size() + self.child_id.len() as i32 * 4
+    }
+
+    pub fn to_node(&self) -> Node{
+        Node::new(NodeType::Group)
     }
 }
 
@@ -240,6 +273,7 @@ impl nSHP{
         let num_of_models = i32_from_vec(input, cursor);
         *cursor += 4;
         let model_id = i32_from_vec(input, cursor);
+        *cursor += 4;
         let model_attributes = Dict::read(input, cursor);
 
         nSHP{
@@ -263,6 +297,10 @@ impl nSHP{
 
     pub fn get_size(&self) -> i32{
         12 + self.node_attributes.get_size() + self.model_attributes.get_size()
+    }
+
+    pub fn to_node(&self) -> Node{
+        Node::new(NodeType::Shape(self.model_id))
     }
 }
 
@@ -401,14 +439,62 @@ pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
     num_of_chunks
 }
 
+//returns root node
+pub fn nodes_from_chunks(input:  &Vec<u8>, test_value: &mut i32) -> Node{
+    let num_nodes = num_of_chunks(input, String::from("nTRN")) +
+        num_of_chunks(input, String::from("nGRP")) +
+        num_of_chunks(input, String::from("nSHP"));
+
+    //start of root node
+    let mut cursor = find_chunk(input, String::from("nTRN"), 1).unwrap() as i32;
+    let root_node_chunk = nTRN::read(input, &mut cursor);
+    let mut root_node = root_node_chunk.to_node();
+
+    add_node_children(&mut root_node, 1, &mut cursor, input, test_value);
+
+    root_node
+}
+
+pub fn chunk_name(vec: &Vec<u8>, pos: &mut i32) -> String{
+    String::from_utf8(
+        vec[(*pos as usize)..((*pos + 4) as usize)].to_vec(),
+    )
+        .expect("failed to create string")
+}
+
 pub fn i32_from_vec(vec: &Vec<u8>, pos: &mut i32) -> i32{
     i32::from_le_bytes(vec[(*pos as usize)..(4 + *pos as usize)].try_into().expect("failed to create i32"))
 }
 
-pub fn parse_string(string: String) -> Vec<i32>{
+pub fn parse_string(string: &String) -> Vec<i32>{
     let a: Vec<&str> = string.split(' ').collect();
     let mut num: Vec<i32> = Vec::new();
     a.iter().for_each(|string| num.push(string.parse().unwrap()));
 
     num
+}
+
+pub fn add_node_children(node: &mut Node, num_of_children: i32, cursor: &mut i32, contents: &Vec<u8>, test_value: &mut i32){
+    if num_of_children != 0 {
+        for i in 0..num_of_children{
+            let name = chunk_name(contents, cursor);
+            if name == String::from("nTRN"){
+                let chunk = nTRN::read(contents, cursor);
+                let mut new_node = chunk.to_node();
+                add_node_children(&mut new_node, 1, cursor, contents, test_value);
+                node.add_child(new_node);
+            } else if name == String::from("nSHP") {
+                let chunk = nSHP::read(contents, cursor);
+                let new_node = chunk.to_node();
+                node.add_child(new_node);
+            } else if name == String::from("nGRP") {
+                let chunk = nGRP::read(contents, cursor);
+                let num_children = chunk.num_of_children_nodes;
+                let mut new_node = chunk.to_node();
+                add_node_children(&mut new_node, num_children, cursor, contents, test_value);
+                node.add_child(new_node);
+            }
+            *test_value += 1;
+        }
+    }
 }

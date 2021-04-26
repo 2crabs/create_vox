@@ -89,5 +89,17 @@ fn num_chunk(){
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    println!("size chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("LAYR")));
+    println!("transform chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nTRN")));
+    println!("group chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nGRP")));
+    println!("shape chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nSHP")));
+}
+
+#[test]
+fn chunk_to_node(){
+    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents)
+        .expect("failed to read file contents");
+
+    //create_vox::riff::nodes_from_chunks(&contents);
 }

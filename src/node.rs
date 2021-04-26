@@ -1,5 +1,6 @@
 use crate::riff::{Dict, nTRN};
 
+#[derive(Debug)]
 pub enum NodeType{
     Transform(Transform),
     Group,
@@ -11,29 +12,40 @@ pub enum NodeType{
 //add first chunk
 //get child id and find it from other chunks
 //add the chunk under the child property after converting it
+#[derive(Debug)]
 pub struct Node{
     pub node_type: NodeType,
-    //need to change this. make a struct for attributes
     pub attributes: NodeAttributes,
-    pub child: Option<Vec<NodeType>>
+    pub child: Vec<Node>
 }
 
 impl Node{
-    pub fn add_child(&mut self, node_type: NodeType){
-        match self.child {
-            Some(_) => {self.child.as_mut().unwrap().push(node_type)},
-            None => {
-                self.child = Some(vec![node_type])
-            }
+    pub fn add_child(&mut self, node: Node){
+        self.child.push(node);
+    }
+
+    pub fn new(node_type: NodeType) -> Node{
+        Node{
+            node_type,
+            attributes: NodeAttributes::new(),
+            child: Vec::new()
         }
     }
 }
 
+#[derive(Debug)]
 pub struct NodeAttributes{
     pub name: Option<String>,
     pub hidden: Option<String>
 }
 
+impl NodeAttributes{
+    pub fn new() -> NodeAttributes{
+        NodeAttributes{ name: None, hidden: None }
+    }
+}
+
+#[derive(Debug)]
 pub struct Transform{
     pub layer: i32,
     //need to make rotation type
