@@ -1,20 +1,20 @@
 use create_vox::node::*;
 use std::fs::File;
-use std::io::{Read, BufWriter, Write};
+use std::io::{BufWriter, Read, Write};
 
 #[test]
-fn node_add(){
-    let mut node = Node{
-        node_type: NodeType::Transform(Transform{
+fn node_add() {
+    let mut node = Node {
+        node_type: NodeType::Transform(Transform {
             layer: 0,
             rotation: Some(0),
-            translation: Some((0, 0, 0))
+            translation: Some((0, 0, 0)),
         }),
-        attributes: NodeAttributes{
+        attributes: NodeAttributes {
             name: None,
-            hidden: None
+            hidden: None,
         },
-        child: Vec::new()
+        child: Vec::new(),
     };
 
     node.add_child(Node::new(NodeType::Group, NodeAttributes::new()));
@@ -22,7 +22,7 @@ fn node_add(){
 }
 
 #[test]
-fn make_tree(){
+fn make_tree() {
     let mut file = File::open("magicavoxel2.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
@@ -31,7 +31,12 @@ fn make_tree(){
     let node = create_vox::riff::nodes_from_chunks(&contents);
 
     println!("node is: {:?}", node);
-    println!("number of nodes: {}", create_vox::riff::num_of_chunks(&contents, String::from("nTRN")) + create_vox::riff::num_of_chunks(&contents, String::from("nGRP")) + create_vox::riff::num_of_chunks(&contents, String::from("nSHP")));
+    println!(
+        "number of nodes: {}",
+        create_vox::riff::num_of_chunks(&contents, String::from("nTRN"))
+            + create_vox::riff::num_of_chunks(&contents, String::from("nGRP"))
+            + create_vox::riff::num_of_chunks(&contents, String::from("nSHP"))
+    );
     //println!("bench: {}", easybench::bench(|| {create_vox::riff::nodes_from_chunks(&contents);}))
 
     //recursion thing ¯\_(ツ)_/¯
@@ -49,10 +54,18 @@ fn make_tree(){
 
     let mut node_file = File::open("Nodes.vox").unwrap();
     let mut node_contents = Vec::new();
-    node_file.read_to_end(&mut node_contents)
+    node_file
+        .read_to_end(&mut node_contents)
         .expect("failed to read file contents");
 
     let new_node = create_vox::riff::nodes_from_chunks(&node_contents);
 
     assert_eq!(node, new_node);
+
+    println!(
+        "bench: {}",
+        easybench::bench(|| {
+            create_vox::riff::nodes_from_chunks(&contents);
+        })
+    )
 }

@@ -1,9 +1,9 @@
-use create_vox::riff::{VoxString};
+use create_vox::riff::VoxString;
 use std::fs::File;
 use std::io::Read;
 
 #[test]
-fn riff_string(){
+fn riff_string() {
     let content = &[2, 0, 0, 0, 104, 105];
     let my_string = VoxString::read(&content.to_vec(), &mut 0).content;
 
@@ -12,7 +12,7 @@ fn riff_string(){
 
 #[test]
 #[should_panic]
-fn riff_string_fail(){
+fn riff_string_fail() {
     let content = &[2, 0, 0, 0, 104, 105];
     let my_string = VoxString::read(&content.to_vec(), &mut 0).content;
 
@@ -20,7 +20,7 @@ fn riff_string_fail(){
 }
 
 #[test]
-fn chunk_read(){
+fn chunk_read() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
@@ -43,26 +43,28 @@ fn chunk_read(){
 }
 
 #[test]
-fn ngrp_read(){
+fn ngrp_read() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("nGRP"), 1).unwrap() as i32;
+    let mut cursor =
+        create_vox::riff::find_chunk(&contents, String::from("nGRP"), 1).unwrap() as i32;
     let chunk = create_vox::riff::nGRP::read(&contents, &mut cursor);
 
     println!("{:?}", chunk);
 }
 
 #[test]
-fn nshp_read(){
+fn nshp_read() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("nSHP"), 1).unwrap() as i32;
+    let mut cursor =
+        create_vox::riff::find_chunk(&contents, String::from("nSHP"), 1).unwrap() as i32;
     let chunk = create_vox::riff::nSHP::read(&contents, &mut cursor);
 
     println!("{:?}", chunk);
@@ -70,32 +72,42 @@ fn nshp_read(){
 }
 
 #[test]
-fn matl_read(){
+fn matl_read() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let mut cursor = create_vox::riff::find_chunk(&contents, String::from("MATL"), 1).unwrap() as i32;
+    let mut cursor =
+        create_vox::riff::find_chunk(&contents, String::from("MATL"), 1).unwrap() as i32;
 
     let chunk = create_vox::riff::MATL::read(&contents, &mut cursor);
     println!("{:?}", chunk)
 }
 
 #[test]
-fn num_chunk(){
+fn num_chunk() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    println!("transform chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nTRN")));
-    println!("group chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nGRP")));
-    println!("shape chunks: {}", create_vox::riff::num_of_chunks(&contents, String::from("nSHP")));
+    println!(
+        "transform chunks: {}",
+        create_vox::riff::num_of_chunks(&contents, String::from("nTRN"))
+    );
+    println!(
+        "group chunks: {}",
+        create_vox::riff::num_of_chunks(&contents, String::from("nGRP"))
+    );
+    println!(
+        "shape chunks: {}",
+        create_vox::riff::num_of_chunks(&contents, String::from("nSHP"))
+    );
 }
 
 #[test]
-fn chunk_to_node(){
+fn chunk_to_node() {
     let mut file = File::open("magicavoxel.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)

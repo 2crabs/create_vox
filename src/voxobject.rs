@@ -1,10 +1,10 @@
 use crate::color::*;
+use crate::model::Model;
+use crate::riff::write_chunk;
 use crate::voxel::*;
 use crate::*;
 use std::fs::File;
 use std::ops::AddAssign;
-use crate::model::Model;
-use crate::riff::write_chunk;
 
 /// Holds all the information needed to create a vox file.
 #[derive(Clone)]
@@ -253,7 +253,7 @@ impl Voxobject {
     ///
     /// assert!(Color::new(30, 0, 40, 255) == vox.get_palette_color(12));
     /// ```
-    pub fn get_palette_color(&self, index: u8) -> Color{
+    pub fn get_palette_color(&self, index: u8) -> Color {
         if index == 0 {
             panic!("index needs to be between 1 and 255");
         }
@@ -332,7 +332,7 @@ impl Voxobject {
         return false;
     }
 
-    pub fn add_model(&mut self, x: u16, y: u16, z: u16){
+    pub fn add_model(&mut self, x: u16, y: u16, z: u16) {
         self.models.push(Model::new(x, y, z));
     }
 
@@ -384,7 +384,7 @@ impl Voxobject {
         }
     }
 
-    fn check_voxels_pos(&mut self){
+    fn check_voxels_pos(&mut self) {
         let size = self.size;
         self.models[0].voxels.retain(|voxel| {
             (voxel.position.0 as u16) < size.0
@@ -403,7 +403,7 @@ impl Voxobject {
     /// my_vox.add_cube(0,0,0,10,10,10,1).unwrap();
     /// my_vox.move_voxels(5, 4 ,5);
     /// ```
-    pub fn move_voxels(&mut self, x: u8, y: u8, z: u8){
+    pub fn move_voxels(&mut self, x: u8, y: u8, z: u8) {
         self.change_voxels(|voxel| {
             voxel.position.0 += x;
             voxel.position.1 += y;

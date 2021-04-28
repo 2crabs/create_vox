@@ -1,27 +1,27 @@
-use crate::*;
 use crate::convert::*;
-use crate::writing::*;
-use std::io::BufWriter;
-use std::fs::File;
 use crate::riff::write_chunk;
+use crate::writing::*;
+use crate::*;
+use std::fs::File;
+use std::io::BufWriter;
 
 #[derive(Clone)]
-pub struct Model{
+pub struct Model {
     size: (u16, u16, u16),
-    pub(crate) voxels: Vec<Voxel>
+    pub(crate) voxels: Vec<Voxel>,
 }
 
 #[allow(unused_variables)]
 #[allow(dead_code)]
-impl Model{
-
-    pub fn new(x: u16, y: u16, z: u16) -> Model{
-        Model{
+impl Model {
+    pub fn new(x: u16, y: u16, z: u16) -> Model {
+        Model {
             size: (x, y, z),
             voxels: Vec::new(),
         }
     }
-    pub fn write(&self, writer: &mut BufWriter<File>){
+
+    pub fn write(&self, writer: &mut BufWriter<File>) {
         let size_slice: &[u8] = &[
             u16_to_array(self.size.0)[0],
             u16_to_array(self.size.0)[1],
@@ -42,7 +42,7 @@ impl Model{
 
         write_chunk("XYZI", ((self.voxels.len() as u32) * 4) + 4, 0, writer);
         //number voxels in the voxobject
-        write_slice(writer, &i32_to_array(self.voxels.len() as u32));
+        write_slice(writer, &u32_to_array(self.voxels.len() as u32));
         //writes all of the voxels
         self.write_voxels(writer);
     }
@@ -61,7 +61,7 @@ impl Model{
     }
 
     //start at size chunk
-    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Model{
+    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Model {
         use crate::riff::i32_from_vec;
         *cursor += 12;
         let size_x = i32_from_vec(input, cursor) as u16;
@@ -74,21 +74,21 @@ impl Model{
         let num_of_voxels = i32_from_vec(input, cursor);
         *cursor += 4;
         let mut voxels = Vec::new();
-        for _i in 0..num_of_voxels{
+        for _i in 0..num_of_voxels {
             let x = input[*cursor as usize];
             let y = input[(*cursor + 1) as usize];
-            let z= input[(*cursor + 2) as usize];
+            let z = input[(*cursor + 2) as usize];
             let i = input[(*cursor + 3) as usize];
             voxels.push(Voxel::new(x, y, z, i))
         }
 
-        Model{
+        Model {
             size: (size_x, size_y, size_z),
-            voxels
+            voxels,
         }
     }
 
-    pub fn get_size(&self) -> i32{
+    pub fn get_size(&self) -> i32 {
         self.voxels.len() as i32 * 4 + 4
     }
 }
