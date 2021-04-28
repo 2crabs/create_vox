@@ -142,7 +142,7 @@ impl nTRN{
             node_attributes,
             child_node_id,
             reserved_id,
-            layer_id,
+            layer_id: -1,
             num_of_frames,
             frame_attributes
         }
@@ -167,11 +167,8 @@ impl nTRN{
     pub fn to_node(&self) -> Node{
         let data = Transform{
             layer: self.layer_id,
-            rotation: 0,
-            translation: match self.has_translation() {
-                Some(trans) => trans,
-                None => (0, 0, 0)
-            }
+            rotation: Some(0),
+            translation: self.has_translation()
         };
 
         Node::new(NodeType::Transform(data))
@@ -195,14 +192,14 @@ impl nTRN{
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
 pub struct nGRP{
-    node_id: i32,
-    node_attributes: Dict,
-    num_of_children_nodes: i32,
+    pub node_id: i32,
+    pub node_attributes: Dict,
+    pub num_of_children_nodes: i32,
     // for each child
     // {
     // int32	: child node id
     // }xN
-    child_id: Vec<i32>
+    pub child_id: Vec<i32>
 }
 
 impl nGRP{
@@ -250,18 +247,18 @@ impl nGRP{
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
 pub struct nSHP{
-    node_id: i32,
-    node_attributes: Dict,
+    pub node_id: i32,
+    pub node_attributes: Dict,
     //must be 1
-    num_of_models: i32,
+    pub num_of_models: i32,
     // for each model
     // {
     // int32	: model id
     // DICT	: model attributes : reserved
     // }xN
     //only one model so only need one of each. may need to change if format changes
-    model_id: i32,
-    model_attributes: Dict
+    pub model_id: i32,
+    pub model_attributes: Dict
 }
 
 impl nSHP{
@@ -388,6 +385,7 @@ pub fn find_chunk(contents: &Vec<u8>, name: String, number: i32) -> Result<usize
             contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
         )
             .expect("failed to create string");
+
         if chunk_name == name{
             if num_chunk == number {
                 return Ok(current_pos as usize)

@@ -1,8 +1,9 @@
-use crate::riff::{Dict, nTRN, VoxString};
+use crate::riff::{Dict, nTRN, VoxString, nGRP, nSHP};
 use std::fs::File;
 use std::io::BufWriter;
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub enum NodeType{
     Transform(Transform),
     Group,
@@ -17,6 +18,7 @@ impl NodeType{
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct Node{
     pub node_type: NodeType,
     pub attributes: NodeAttributes,
@@ -52,41 +54,75 @@ impl Node{
         num
     }
 
-    pub fn write(&self, id: i32, children: Option<Vec<i32>>, buf_writer: &mut BufWriter<File>){
+    pub fn write(&self, id: &mut i32, children: Vec<i32>, buf_writer: &mut BufWriter<File>){
         match &(*self).node_type {
             NodeType::Transform(trans) => {
                 nTRN{
-                    node_id: id,
+                    node_id: *id,
                     node_attributes: self.attributes.to_dict(),
-                    child_node_id: children.unwrap()[0],
+                    child_node_id: children[0],
                     reserved_id: 0,
-                    layer_id: 0,
-                    num_of_frames: 0,
+                    layer_id: -1,
+                    num_of_frames: 1,
                     frame_attributes: trans.to_dict()
                 }.write(buf_writer);
-
             },
 
             NodeType::Group => {
-
+                nGRP{
+                    node_id: *id,
+                    node_attributes: self.attributes.to_dict(),
+                    num_of_children_nodes: self.child.len() as i32,
+                    child_id: children
+                }.write(buf_writer)
             },
 
-            NodeType::Shape(_) => {
-
+            NodeType::Shape(model_id) => {
+                nSHP{
+                    node_id: *id,
+                    node_attributes: self.attributes.to_dict(),
+                    num_of_models: 1,
+                    model_id: *model_id,
+                    model_attributes: Dict { num_of_pairs: 0, pairs: vec![] }
+                }.write(buf_writer)
             }
 
         }
     }
+
+    pub fn get_child_ids(&self, id: &mut i32) -> Vec<i32>{
+        let mut child_ids = Vec::new();
+        let mut new_id = (*id).clone();
+        for i in self.child.iter(){
+            new_id += 1;
+            child_ids.push(new_id);
+        }
+
+        child_ids
+    }
+    pub fn write_children(&self, buf_writer: &mut BufWriter<File>, id: &mut i32){
+        for child in self.child.iter(){
+
+            child.write(&mut (*id).clone(), child.get_child_ids(id), buf_writer);
+            *id += 1;
+            child.write_children(buf_writer, id);
+        }
+
+        for child in self.child.iter() {
+
+        }
+    }
     
-    //pub fn write_children(){
-    //}
-    
-    pub fn write_all(){
-        
+    pub fn write_all(&self, buf_writer: &mut BufWriter<File>){
+        let mut id = 1;
+        self.write(&mut id.clone(), self.get_child_ids(&mut id), buf_writer);
+        id += 1;
+        self.write_children(buf_writer, &mut id)
     }
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct NodeAttributes{
     pub name: Option<String>,
     pub hidden: Option<bool>
@@ -133,19 +169,50 @@ impl NodeAttributes{
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 pub struct Transform{
     pub layer: i32,
     //need to make rotation type
-    pub rotation: u8,
-    pub translation: (i32, i32, i32)
+    pub rotation: Option<u8>,
+    pub translation: Option<(i32, i32, i32)>
 }
 
 impl Transform{
     pub fn to_dict(&self) -> Dict{
         Dict{
-            num_of_pairs: 0,
-            pairs: vec![]
+            num_of_pairs: self.num_of_pairs(),
+            pairs: self.get_pairs()
         }
+    }
+
+    pub fn num_of_pairs(&self) -> i32{
+        if self.rotation.is_some() && self.translation.is_some(){
+            2
+        } else if self.rotation.is_some() || self.translation.is_some() {
+            1
+        } else {
+            0
+        }
+    }
+
+    pub fn get_pairs(&self) -> Vec<(VoxString, VoxString)>{
+        let mut pairs = Vec::new();
+        match self.rotation {
+            Some(rot) => {pairs.push((VoxString::new(2, String::from("_r")), VoxString::new(1, rot.to_string())))}
+            None => {}
+        }
+
+        match self.translation {
+            Some(trans) => {pairs.push((VoxString::new(2, String::from("_t")), VoxString::new(self.translation_to_string().len() as i32, self.translation_to_string())))}
+            None => {}
+        }
+
+        pairs
+
+    }
+
+    pub fn translation_to_string(&self) -> String{
+        format!("{} {} {}", self.translation.unwrap().0, self.translation.unwrap().1, self.translation.unwrap().2)
     }
 }
 

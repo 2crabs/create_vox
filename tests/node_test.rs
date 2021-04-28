@@ -1,14 +1,14 @@
 use create_vox::node::*;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, BufWriter, Write};
 
 #[test]
 fn node_add(){
     let mut node = Node{
         node_type: NodeType::Transform(Transform{
             layer: 0,
-            rotation: 0,
-            translation: (0, 0, 0)
+            rotation: Some(0),
+            translation: Some((0, 0, 0))
         }),
         attributes: NodeAttributes{
             name: None,
@@ -38,4 +38,21 @@ fn make_tree(){
     println!("shallow children: {}", node.child[0].child.len());
     println!("type: {:?}", node.node_type);
     println!("number of children is: {}", node.num_children());
+
+    //if I delete these it breaks
+    {
+        let new_file = File::create("Nodes").unwrap();
+        let mut writer = BufWriter::new(new_file);
+        writer.write(&[0, 0, 0, 0, 0, 0, 0, 0]).unwrap();
+        node.write_all(&mut writer);
+    }
+
+    let mut node_file = File::open("Nodes").unwrap();
+    let mut node_contents = Vec::new();
+    node_file.read_to_end(&mut node_contents)
+        .expect("failed to read file contents");
+
+    let new_node = create_vox::riff::nodes_from_chunks(&node_contents);
+
+    assert_eq!(node, new_node);
 }

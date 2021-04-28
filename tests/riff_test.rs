@@ -1,4 +1,4 @@
-use create_vox::riff::{VoxString, find_chunk, nTRN};
+use create_vox::riff::{VoxString};
 use std::fs::File;
 use std::io::Read;
 
