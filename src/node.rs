@@ -11,12 +11,6 @@ pub enum NodeType{
     Shape(i32)
 }
 
-impl NodeType{
-    pub fn write(&self, id: Option<i32>, children: Option<Vec<i32>>, buf_writer: &mut BufWriter<File>){
-        
-    }
-}
-
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub struct Node{
@@ -30,10 +24,10 @@ impl Node{
         self.child.push(node);
     }
 
-    pub fn new(node_type: NodeType) -> Node{
+    pub fn new(node_type: NodeType, attribs: NodeAttributes) -> Node{
         Node{
             node_type,
-            attributes: NodeAttributes::new(),
+            attributes: attribs,
             child: Vec::new()
         }
     }
@@ -93,7 +87,7 @@ impl Node{
     pub fn get_child_ids(&self, id: &mut i32) -> Vec<i32>{
         let mut child_ids = Vec::new();
         let mut new_id = (*id).clone();
-        for i in self.child.iter(){
+        for _i in self.child.iter(){
             new_id += 1;
             child_ids.push(new_id);
         }
@@ -106,10 +100,6 @@ impl Node{
             child.write(&mut (*id).clone(), child.get_child_ids(id), buf_writer);
             *id += 1;
             child.write_children(buf_writer, id);
-        }
-
-        for child in self.child.iter() {
-
         }
     }
     
@@ -203,7 +193,7 @@ impl Transform{
         }
 
         match self.translation {
-            Some(trans) => {pairs.push((VoxString::new(2, String::from("_t")), VoxString::new(self.translation_to_string().len() as i32, self.translation_to_string())))}
+            Some(_) => {pairs.push((VoxString::new(2, String::from("_t")), VoxString::new(self.translation_to_string().len() as i32, self.translation_to_string())))}
             None => {}
         }
 

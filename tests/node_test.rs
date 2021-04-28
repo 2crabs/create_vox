@@ -17,13 +17,13 @@ fn node_add(){
         child: Vec::new()
     };
 
-    node.add_child(Node::new(NodeType::Group));
+    node.add_child(Node::new(NodeType::Group, NodeAttributes::new()));
     assert_eq!(node.child.len(), 1)
 }
 
 #[test]
 fn make_tree(){
-    let mut file = File::open("magicavoxel.vox").unwrap();
+    let mut file = File::open("magicavoxel2.vox").unwrap();
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
@@ -41,13 +41,13 @@ fn make_tree(){
 
     //if I delete these it breaks
     {
-        let new_file = File::create("Nodes").unwrap();
+        let new_file = File::create("Nodes.vox").unwrap();
         let mut writer = BufWriter::new(new_file);
         writer.write(&[0, 0, 0, 0, 0, 0, 0, 0]).unwrap();
         node.write_all(&mut writer);
     }
 
-    let mut node_file = File::open("Nodes").unwrap();
+    let mut node_file = File::open("Nodes.vox").unwrap();
     let mut node_contents = Vec::new();
     node_file.read_to_end(&mut node_contents)
         .expect("failed to read file contents");

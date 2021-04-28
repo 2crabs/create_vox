@@ -3,8 +3,7 @@ use std::fs::File;
 use crate::writing::*;
 use crate::convert::*;
 use std::convert::TryInto;
-use crate::node::{Transform, Node, NodeType};
-use std::collections::HashMap;
+use crate::node::{Transform, Node, NodeType, NodeAttributes};
 
 pub fn write_chunk(name: &str, size: u32, children_size: u32, writer: &mut BufWriter<File>){
     write_string_literal(writer, name);
@@ -129,9 +128,7 @@ impl nTRN{
         let child_node_id = i32_from_vec(input, cursor);
         *cursor += 4;
         let reserved_id = i32_from_vec(input, cursor);
-        *cursor += 4;
-        let layer_id = i32_from_vec(input, cursor);
-        *cursor += 4;
+        *cursor += 8;
         let num_of_frames = i32_from_vec(input, cursor);
         *cursor += 4;
 
@@ -171,7 +168,7 @@ impl nTRN{
             translation: self.has_translation()
         };
 
-        Node::new(NodeType::Transform(data))
+        Node::new(NodeType::Transform(data), node_attributes_from_dict(&self.node_attributes))
     }
 
     pub fn has_translation(&self) -> Option<(i32, i32, i32)>{
@@ -239,7 +236,7 @@ impl nGRP{
     }
 
     pub fn to_node(&self) -> Node{
-        Node::new(NodeType::Group)
+        Node::new(NodeType::Group, node_attributes_from_dict(&self.node_attributes))
     }
 }
 
@@ -297,7 +294,7 @@ impl nSHP{
     }
 
     pub fn to_node(&self) -> Node{
-        Node::new(NodeType::Shape(self.model_id))
+        Node::new(NodeType::Shape(self.model_id),node_attributes_from_dict(&self.node_attributes))
     }
 }
 
@@ -439,10 +436,6 @@ pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
 
 //returns root node
 pub fn nodes_from_chunks(input:  &Vec<u8>) -> Node{
-    let num_nodes = num_of_chunks(input, String::from("nTRN")) +
-        num_of_chunks(input, String::from("nGRP")) +
-        num_of_chunks(input, String::from("nSHP"));
-
     //start of root node
     let mut cursor = find_chunk(input, String::from("nTRN"), 1).unwrap() as i32;
     let root_node_chunk = nTRN::read(input, &mut cursor);
@@ -472,8 +465,31 @@ pub fn parse_string(string: &String) -> Vec<i32>{
     num
 }
 
+pub fn node_attributes_from_dict(dict: &Dict) -> NodeAttributes{
+    let mut name = None;
+    let mut hidden = None;
+    for pair in dict.pairs.iter(){
+        if pair.0.content == String::from("_hidden") {
+            hidden = if (pair.1.content.parse::<i32>().unwrap()) == 1 {
+                Some(true)
+            } else {
+                Some(false)
+            }
+        }
+
+        if pair.0.content == String::from("_name") {
+            name = Some(pair.1.content.clone())
+        }
+    }
+
+    NodeAttributes{
+        name,
+        hidden
+    }
+}
+
 pub fn add_node_children(node: &mut Node, num_of_children: i32, cursor: &mut i32, contents: &Vec<u8>){
-    for i in 0..num_of_children{
+    for _i in 0..num_of_children{
         let name = chunk_name(contents, cursor);
         if name == String::from("nTRN"){
             let chunk = nTRN::read(contents, cursor);
