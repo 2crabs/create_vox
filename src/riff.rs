@@ -421,7 +421,6 @@ pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32 {
             contents[(current_pos as usize)..((current_pos + 4) as usize)].to_vec(),
         )
         .expect("failed to create string");
-
         if chunk_name == name {
             num_of_chunks += 1;
         }

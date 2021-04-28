@@ -3,12 +3,13 @@ mod convert;
 pub(crate) mod loader;
 pub mod model;
 #[allow(dead_code)]
-pub(crate) mod node;
+pub mod node;
 #[allow(dead_code)]
-pub(crate) mod riff;
+pub mod riff;
 mod voxel;
 mod voxobject;
 mod writing;
+pub mod voxfile;
 
 pub use color::*;
 use std::io::Write;

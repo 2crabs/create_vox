@@ -13,6 +13,8 @@ pub enum NodeType {
 #[derive(Debug, PartialEq)]
 pub struct Node {
     pub node_type: NodeType,
+    pub id: i32,
+    pub children: Vec<i32>,
     pub attributes: NodeAttributes,
     pub child: Vec<Node>,
 }
@@ -25,6 +27,8 @@ impl Node {
     pub fn new(node_type: NodeType, attribs: NodeAttributes) -> Node {
         Node {
             node_type,
+            id: 0,
+            children: vec![],
             attributes: attribs,
             child: Vec::new(),
         }
@@ -43,7 +47,6 @@ impl Node {
 
         num
     }
-
     pub fn write(&self, id: &mut i32, children: Vec<i32>, buf_writer: &mut BufWriter<File>) {
         match &(*self).node_type {
             NodeType::Transform(trans) => {
@@ -104,6 +107,56 @@ impl Node {
         self.write(&mut id.clone(), self.get_child_ids(&mut id), buf_writer);
         id += 1;
         self.write_children(buf_writer, &mut id)
+    }
+
+
+    pub fn get_size(&self) -> i32{
+        match &(*self).node_type {
+            NodeType::Transform(trans) => {
+                nTRN {
+                    node_id: 0,
+                    node_attributes: self.attributes.to_dict(),
+                    child_node_id: 0,
+                    reserved_id: 0,
+                    layer_id: -1,
+                    num_of_frames: 1,
+                    frame_attributes: trans.to_dict(),
+                }
+                    .get_size()
+            }
+
+            NodeType::Group => nGRP {
+                node_id: 0,
+                node_attributes: self.attributes.to_dict(),
+                num_of_children_nodes: self.child.len() as i32,
+                child_id: vec![0; self.child.len()],
+            }
+                .get_size(),
+
+            NodeType::Shape(model_id) => nSHP {
+                node_id: 0,
+                node_attributes: self.attributes.to_dict(),
+                num_of_models: 1,
+                model_id: *model_id,
+                model_attributes: Dict {
+                    num_of_pairs: 0,
+                    pairs: vec![],
+                },
+            }.get_size()
+        }
+    }
+
+    pub fn get_children_size(&self, size: &mut i32){
+        for child in self.child.iter(){
+            *size += child.get_size();
+            child.get_children_size(size);
+        };
+    }
+
+    pub fn get_all_size(&self) -> i32{
+        let mut size = self.get_size();
+        self.get_children_size(&mut size);
+        size
     }
 }
 
@@ -219,6 +272,7 @@ impl Transform {
             self.translation.unwrap().2
         )
     }
+
 }
 
 pub fn bool_to_string(value: bool) -> String {

@@ -8,6 +8,7 @@ use std::ops::AddAssign;
 
 /// Holds all the information needed to create a vox file.
 #[derive(Clone)]
+//#[deprecated]
 pub struct Voxobject {
     size: (u16, u16, u16),
     models: Vec<Model>,

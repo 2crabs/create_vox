@@ -67,5 +67,7 @@ fn make_tree() {
         easybench::bench(|| {
             create_vox::riff::nodes_from_chunks(&contents);
         })
-    )
+    );
+
+    println!("size is: {}", node.get_all_size());
 }
