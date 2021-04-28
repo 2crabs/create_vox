@@ -28,11 +28,14 @@ fn make_tree(){
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let mut test = 0;
-    let node = create_vox::riff::nodes_from_chunks(&contents, &mut test);
+    let node = create_vox::riff::nodes_from_chunks(&contents);
 
     println!("node is: {:?}", node);
     println!("number of nodes: {}", create_vox::riff::num_of_chunks(&contents, String::from("nTRN")) + create_vox::riff::num_of_chunks(&contents, String::from("nGRP")) + create_vox::riff::num_of_chunks(&contents, String::from("nSHP")));
-    println!("test value: {}", test);
-    println!("bench: {}", easybench::bench(|| {create_vox::riff::nodes_from_chunks(&contents, &mut test);}))
+    //println!("bench: {}", easybench::bench(|| {create_vox::riff::nodes_from_chunks(&contents);}))
+
+    //recursion thing ¯\_(ツ)_/¯
+    println!("shallow children: {}", node.child[0].child.len());
+    println!("type: {:?}", node.node_type);
+    println!("number of children is: {}", node.num_children());
 }

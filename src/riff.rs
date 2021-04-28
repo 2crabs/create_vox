@@ -440,7 +440,7 @@ pub fn num_of_chunks(contents: &Vec<u8>, name: String) -> i32{
 }
 
 //returns root node
-pub fn nodes_from_chunks(input:  &Vec<u8>, test_value: &mut i32) -> Node{
+pub fn nodes_from_chunks(input:  &Vec<u8>) -> Node{
     let num_nodes = num_of_chunks(input, String::from("nTRN")) +
         num_of_chunks(input, String::from("nGRP")) +
         num_of_chunks(input, String::from("nSHP"));
@@ -450,7 +450,7 @@ pub fn nodes_from_chunks(input:  &Vec<u8>, test_value: &mut i32) -> Node{
     let root_node_chunk = nTRN::read(input, &mut cursor);
     let mut root_node = root_node_chunk.to_node();
 
-    add_node_children(&mut root_node, 1, &mut cursor, input, test_value);
+    add_node_children(&mut root_node, 1, &mut cursor, input);
 
     root_node
 }
@@ -474,27 +474,24 @@ pub fn parse_string(string: &String) -> Vec<i32>{
     num
 }
 
-pub fn add_node_children(node: &mut Node, num_of_children: i32, cursor: &mut i32, contents: &Vec<u8>, test_value: &mut i32){
-    if num_of_children != 0 {
-        for i in 0..num_of_children{
-            let name = chunk_name(contents, cursor);
-            if name == String::from("nTRN"){
-                let chunk = nTRN::read(contents, cursor);
-                let mut new_node = chunk.to_node();
-                add_node_children(&mut new_node, 1, cursor, contents, test_value);
-                node.add_child(new_node);
-            } else if name == String::from("nSHP") {
-                let chunk = nSHP::read(contents, cursor);
-                let new_node = chunk.to_node();
-                node.add_child(new_node);
-            } else if name == String::from("nGRP") {
-                let chunk = nGRP::read(contents, cursor);
-                let num_children = chunk.num_of_children_nodes;
-                let mut new_node = chunk.to_node();
-                add_node_children(&mut new_node, num_children, cursor, contents, test_value);
-                node.add_child(new_node);
-            }
-            *test_value += 1;
+pub fn add_node_children(node: &mut Node, num_of_children: i32, cursor: &mut i32, contents: &Vec<u8>){
+    for i in 0..num_of_children{
+        let name = chunk_name(contents, cursor);
+        if name == String::from("nTRN"){
+            let chunk = nTRN::read(contents, cursor);
+            let mut new_node = chunk.to_node();
+            add_node_children(&mut new_node, 1, cursor, contents);
+            node.add_child(new_node);
+        } else if name == String::from("nSHP") {
+            let chunk = nSHP::read(contents, cursor);
+            let new_node = chunk.to_node();
+            node.add_child(new_node);
+        } else if name == String::from("nGRP") {
+            let chunk = nGRP::read(contents, cursor);
+            let num_children = chunk.num_of_children_nodes;
+            let mut new_node = chunk.to_node();
+            add_node_children(&mut new_node, num_children, cursor, contents);
+            node.add_child(new_node);
         }
     }
 }
