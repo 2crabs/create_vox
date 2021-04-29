@@ -125,7 +125,9 @@ impl nTRN {
         let child_node_id = i32_from_vec(input, cursor);
         *cursor += 4;
         let reserved_id = i32_from_vec(input, cursor);
-        *cursor += 8;
+        *cursor += 4;
+        let layer_id = i32_from_vec(input, cursor);
+        *cursor += 4;
         let num_of_frames = i32_from_vec(input, cursor);
         *cursor += 4;
 
@@ -136,7 +138,7 @@ impl nTRN {
             node_attributes,
             child_node_id,
             reserved_id,
-            layer_id: -1,
+            layer_id,
             num_of_frames,
             frame_attributes,
         }
@@ -161,7 +163,7 @@ impl nTRN {
     pub fn to_node(&self) -> Node {
         let data = Transform {
             layer: self.layer_id,
-            rotation: None,
+            rotation: self.has_rotation(),
             translation: self.has_translation(),
         };
 
@@ -177,6 +179,19 @@ impl nTRN {
                 if attribute.0.content == String::from("_t") {
                     let parsed = parse_string(&attribute.1.content);
                     return Some((parsed[0], parsed[1], parsed[2]));
+                }
+            }
+        }
+
+        None
+    }
+
+    pub fn has_rotation(&self) -> Option<i32>{
+        if self.frame_attributes.pairs.len() >= 1 {
+            for attribute in self.frame_attributes.pairs.iter() {
+                if attribute.0.content == String::from("_r") {
+                    let parsed = parse_string(&attribute.1.content);
+                    return Some(parsed[0]);
                 }
             }
         }

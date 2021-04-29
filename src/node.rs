@@ -69,7 +69,7 @@ impl Node {
                     node_attributes: self.attributes.to_dict(),
                     child_node_id: self.children_ids[0],
                     reserved_id: -1,
-                    layer_id: -1,
+                    layer_id: trans.layer,
                     num_of_frames: 1,
                     frame_attributes: trans.to_dict(),
                 }
@@ -223,7 +223,7 @@ impl NodeAttributes {
 pub struct Transform {
     pub layer: i32,
     //need to make rotation type
-    pub rotation: Option<u8>,
+    pub rotation: Option<i32>,
     pub translation: Option<(i32, i32, i32)>,
 }
 
