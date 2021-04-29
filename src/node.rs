@@ -106,7 +106,7 @@ impl Node {
     }
 
     pub fn write_all(&mut self, buf_writer: &mut BufWriter<File>) {
-        self.number_nodes(1);
+        self.number_nodes(0);
         self.number_children_ids();
         let mut id = 1;
         self.write( buf_writer);
@@ -250,7 +250,8 @@ impl Transform {
         match self.rotation {
             Some(rot) => pairs.push((
                 VoxString::new(2, String::from("_r")),
-                VoxString::new(1, rot.to_string()),
+                //it was here
+                VoxString::new(rot.to_string().len() as i32, rot.to_string()),
             )),
             None => {}
         }

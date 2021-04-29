@@ -33,6 +33,7 @@ impl VoxFile{
 
         //palette
         let mut palette: [Color; 256] = [Color::new(0, 0, 0, 0); 256];
+        assert_eq!(1, riff::num_of_chunks(&contents, String::from("RGBA")));
         let current_pos = riff::find_chunk(&contents, String::from("RGBA"), 1).unwrap();
         for i in 0..256 {
             //gets the color data
