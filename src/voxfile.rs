@@ -54,7 +54,7 @@ impl VoxFile{
         }
     }
 
-    pub fn write(&self, path: &str){
+    pub fn write(&mut self, path: &str){
         let file = File::create(path).expect("failed to create file");
         let mut writer = BufWriter::new(file);
         write_string_literal(&mut writer, "VOX ");

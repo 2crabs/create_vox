@@ -10,15 +10,17 @@ fn node_add() {
             rotation: Some(0),
             translation: Some((0, 0, 0)),
         }),
+        id: 0,
+        children_ids: vec![],
         attributes: NodeAttributes {
             name: None,
             hidden: None,
         },
-        child: Vec::new(),
+        children: Vec::new(),
     };
 
     node.add_child(Node::new(NodeType::Group, NodeAttributes::new()));
-    assert_eq!(node.child.len(), 1)
+    assert_eq!(node.children.len(), 1)
 }
 
 #[test]
@@ -28,7 +30,7 @@ fn make_tree() {
     file.read_to_end(&mut contents)
         .expect("failed to read file contents");
 
-    let node = create_vox::riff::nodes_from_chunks(&contents);
+    let mut node = create_vox::riff::nodes_from_chunks(&contents);
 
     println!("node is: {:?}", node);
     println!(
@@ -40,7 +42,7 @@ fn make_tree() {
     //println!("bench: {}", easybench::bench(|| {create_vox::riff::nodes_from_chunks(&contents);}))
 
     //recursion thing ¯\_(ツ)_/¯
-    println!("shallow children: {}", node.child[0].child.len());
+    //println!("shallow children: {}", node.children[0].children.len());
     println!("type: {:?}", node.node_type);
     println!("number of children is: {}", node.num_children());
 

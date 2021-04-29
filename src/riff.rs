@@ -161,7 +161,7 @@ impl nTRN {
     pub fn to_node(&self) -> Node {
         let data = Transform {
             layer: self.layer_id,
-            rotation: Some(0),
+            rotation: None,
             translation: self.has_translation(),
         };
 

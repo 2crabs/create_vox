@@ -14,47 +14,61 @@ pub enum NodeType {
 pub struct Node {
     pub node_type: NodeType,
     pub id: i32,
-    pub children: Vec<i32>,
+    pub children_ids: Vec<i32>,
     pub attributes: NodeAttributes,
-    pub child: Vec<Node>,
+    pub children: Vec<Node>,
 }
 
 impl Node {
     pub fn add_child(&mut self, node: Node) {
-        self.child.push(node);
+        self.children.push(node);
     }
 
     pub fn new(node_type: NodeType, attribs: NodeAttributes) -> Node {
         Node {
             node_type,
             id: 0,
-            children: vec![],
+            children_ids: vec![],
             attributes: attribs,
-            child: Vec::new(),
+            children: Vec::new(),
         }
     }
 
-    //node id
-    pub fn num_node(&self) {}
+    pub fn number_nodes(&mut self, start: i32) -> i32{
+        let mut id = start;
+        self.id = start;
+        for child in self.children.iter_mut() {
+            id += 1;
+            id = child.number_nodes(id);
+        }
+        id
+    }
+
+    pub fn number_children_ids(&mut self){
+        for child in self.children.iter_mut() {
+            self.children_ids.push(child.id);
+            child.number_children_ids();
+        }
+    }
 
     //number of nodes below this node
     pub fn num_children(&self) -> i32 {
         let mut num = 0;
-        num += self.child.len() as i32;
-        for child in self.child.iter() {
+        num += self.children.len() as i32;
+        for child in self.children.iter() {
             num += child.num_children();
         }
 
         num
     }
-    pub fn write(&self, id: &mut i32, children: Vec<i32>, buf_writer: &mut BufWriter<File>) {
+    pub fn write(&self, buf_writer: &mut BufWriter<File>) {
         match &(*self).node_type {
             NodeType::Transform(trans) => {
                 nTRN {
-                    node_id: *id,
+                    node_id: self.id,
                     node_attributes: self.attributes.to_dict(),
-                    child_node_id: children[0],
-                    reserved_id: 0,
+                    child_node_id: self.children_ids[0],
+                    reserved_id: -1,
                     layer_id: -1,
                     num_of_frames: 1,
                     frame_attributes: trans.to_dict(),
@@ -63,15 +77,15 @@ impl Node {
             }
 
             NodeType::Group => nGRP {
-                node_id: *id,
+                node_id: self.id,
                 node_attributes: self.attributes.to_dict(),
-                num_of_children_nodes: self.child.len() as i32,
-                child_id: children,
+                num_of_children_nodes: self.children.len() as i32,
+                child_id: self.children_ids.clone(),
             }
             .write(buf_writer),
 
             NodeType::Shape(model_id) => nSHP {
-                node_id: *id,
+                node_id: self.id,
                 node_attributes: self.attributes.to_dict(),
                 num_of_models: 1,
                 model_id: *model_id,
@@ -84,29 +98,20 @@ impl Node {
         }
     }
 
-    pub fn get_child_ids(&self, id: &mut i32) -> Vec<i32> {
-        let mut child_ids = Vec::new();
-        let mut new_id = (*id).clone();
-        for _i in self.child.iter() {
-            new_id += 1;
-            child_ids.push(new_id);
-        }
-
-        child_ids
-    }
-    pub fn write_children(&self, buf_writer: &mut BufWriter<File>, id: &mut i32) {
-        for child in self.child.iter() {
-            child.write(&mut (*id).clone(), child.get_child_ids(id), buf_writer);
-            *id += 1;
-            child.write_children(buf_writer, id);
+    pub fn write_children(&self, buf_writer: &mut BufWriter<File>) {
+        for child in self.children.iter() {
+            child.write(buf_writer);
+            child.write_children(buf_writer);
         }
     }
 
-    pub fn write_all(&self, buf_writer: &mut BufWriter<File>) {
+    pub fn write_all(&mut self, buf_writer: &mut BufWriter<File>) {
+        self.number_nodes(1);
+        self.number_children_ids();
         let mut id = 1;
-        self.write(&mut id.clone(), self.get_child_ids(&mut id), buf_writer);
+        self.write( buf_writer);
         id += 1;
-        self.write_children(buf_writer, &mut id)
+        self.write_children(buf_writer)
     }
 
 
@@ -128,8 +133,8 @@ impl Node {
             NodeType::Group => nGRP {
                 node_id: 0,
                 node_attributes: self.attributes.to_dict(),
-                num_of_children_nodes: self.child.len() as i32,
-                child_id: vec![0; self.child.len()],
+                num_of_children_nodes: self.children.len() as i32,
+                child_id: vec![0; self.children.len()],
             }
                 .get_size(),
 
@@ -147,7 +152,7 @@ impl Node {
     }
 
     pub fn get_children_size(&self, size: &mut i32){
-        for child in self.child.iter(){
+        for child in self.children.iter(){
             *size += child.get_size();
             child.get_children_size(size);
         };
