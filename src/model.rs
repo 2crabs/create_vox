@@ -7,7 +7,7 @@ use std::io::BufWriter;
 
 #[derive(Clone)]
 pub struct Model {
-    size: (u16, u16, u16),
+    pub size: (u16, u16, u16),
     pub(crate) voxels: Vec<Voxel>,
 }
 
@@ -74,12 +74,12 @@ impl Model {
         let num_of_voxels = i32_from_vec(input, cursor);
         *cursor += 4;
         let mut voxels = Vec::new();
-        for _i in 0..num_of_voxels {
-            let x = input[*cursor as usize];
-            let y = input[(*cursor + 1) as usize];
-            let z = input[(*cursor + 2) as usize];
-            let i = input[(*cursor + 3) as usize];
-            voxels.push(Voxel::new(x, y, z, i))
+        for i in 0..num_of_voxels {
+            let x = input[(*cursor + 4 * i ) as usize];
+            let y = input[(*cursor + 1 + 4 * i) as usize];
+            let z = input[(*cursor + 2 + 4 *i) as usize];
+            let index = input[(*cursor + 3 + 4 * i) as usize];
+            voxels.push(Voxel::new(x, y, z, index))
         }
 
         Model {

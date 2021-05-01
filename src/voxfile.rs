@@ -8,10 +8,10 @@ use crate::writing::{write_slice, write_string_literal};
 use crate::riff::{write_chunk, LAYR, num_of_chunks};
 
 pub struct VoxFile{
-    models: Vec<Model>,
-    palette: [Color; 256],
-    root_node: Node,
-    layers: Vec<LAYR>
+    pub models: Vec<Model>,
+    pub palette: [Color; 256],
+    pub root_node: Node,
+    pub layers: Vec<LAYR>
 }
 
 impl VoxFile{
@@ -33,8 +33,7 @@ impl VoxFile{
 
         //palette
         let mut palette: [Color; 256] = [Color::new(0, 0, 0, 0); 256];
-        assert_eq!(1, riff::num_of_chunks(&contents, String::from("RGBA")));
-        let current_pos = riff::find_chunk(&contents, String::from("RGBA"), 1).unwrap();
+        let current_pos = riff::find_chunk(&contents, String::from("RGBA"), 1).unwrap() + 12;
         for i in 0..256 {
             //gets the color data
             let r: u8 = contents[(current_pos + (i * 4)) as usize];
@@ -52,12 +51,7 @@ impl VoxFile{
 
         VoxFile{
             models,
-            palette: [Color {
-                r: 75,
-                g: 75,
-                b: 75,
-                a: 255,
-            }; 256],
+            palette,
             root_node: riff::nodes_from_chunks(&contents),
             layers
         }
@@ -83,6 +77,7 @@ impl VoxFile{
         }
     }
 
+    //size in bytes when written
     pub fn get_size(&self) -> i32{
         let mut size = 1024;
         for model in self.models.iter(){
