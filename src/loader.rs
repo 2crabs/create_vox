@@ -3,6 +3,7 @@ use std::convert::TryInto;
 use std::fs::*;
 use std::io::Read;
 
+#[deprecated]
 pub(crate) fn load_voxobject(file: &mut File) -> Voxobject {
     let mut contents = Vec::new();
     file.read_to_end(&mut contents)

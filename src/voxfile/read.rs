@@ -1,18 +1,10 @@
+use crate::voxfile::VoxFile;
 use crate::model::Model;
 use crate::Color;
-use crate::node::Node;
 use crate::riff;
 use std::fs::File;
-use std::io::{Read, BufWriter};
-use crate::writing::{write_slice, write_string_literal};
-use crate::riff::{write_chunk, LAYR, num_of_chunks};
-
-pub struct VoxFile{
-    pub models: Vec<Model>,
-    pub palette: [Color; 256],
-    pub root_node: Node,
-    pub layers: Vec<LAYR>
-}
+use std::io::Read;
+use crate::riff::{LAYR, num_of_chunks};
 
 impl VoxFile{
     pub fn load(path: &str) -> VoxFile{
@@ -55,38 +47,5 @@ impl VoxFile{
             root_node: riff::nodes_from_chunks(&contents),
             layers
         }
-    }
-
-    pub fn write(&mut self, path: &str){
-        let file = File::create(path).expect("failed to create file");
-        let mut writer = BufWriter::new(file);
-        write_string_literal(&mut writer, "VOX ");
-        write_slice(&mut writer, &[0, 0, 0, 0]);
-
-        write_chunk("MAIN", 0, self.get_size() as u32, &mut writer);
-        for model in self.models.iter(){
-            model.write(&mut writer);
-        }
-        self.root_node.write_all(&mut writer);
-        for layer in self.layers.iter(){
-            layer.write(&mut writer);
-        }
-        write_chunk("RGBA", 1024, 0, &mut writer);
-        for color in self.palette.iter() {
-            write_slice(&mut writer, &[color.r, color.g, color.b, color.a])
-        }
-    }
-
-    //size in bytes when written
-    pub fn get_size(&self) -> i32{
-        let mut size = 1024;
-        for model in self.models.iter(){
-            size += model.get_size();
-        }
-        for layer in self.layers.iter(){
-            size += layer.get_size()
-        }
-        size += self.root_node.get_all_size();
-        size
     }
 }
