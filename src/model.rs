@@ -88,7 +88,7 @@ impl Model {
         }
     }
 
-    pub fn get_size(&self) -> i32 {
+    pub(crate) fn get_size(&self) -> i32 {
         self.voxels.len() as i32 * 4 + 4
     }
 }

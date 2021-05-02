@@ -2,7 +2,7 @@ use crate::voxfile::VoxFile;
 use std::fs::File;
 use std::io::BufWriter;
 use crate::writing::{write_slice, write_string_literal};
-use crate::riff::{write_chunk, num_of_chunks};
+use crate::riff::write_chunk;
 
 
 impl VoxFile{

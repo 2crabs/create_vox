@@ -108,9 +108,7 @@ impl Node {
     pub fn write_all(&mut self, buf_writer: &mut BufWriter<File>) {
         self.number_nodes(0);
         self.number_children_ids();
-        let mut id = 1;
         self.write( buf_writer);
-        id += 1;
         self.write_children(buf_writer)
     }
 

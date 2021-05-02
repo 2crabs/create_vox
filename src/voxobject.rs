@@ -3,7 +3,6 @@ use crate::model::Model;
 use crate::riff::write_chunk;
 use crate::voxel::*;
 use crate::*;
-use std::fs::File;
 use std::ops::AddAssign;
 
 /// Holds all the information needed to create a vox file.
@@ -454,84 +453,13 @@ impl Voxobject {
             );
         }
     }
-
-    /// Loads a vox file from the string given
-    ///
-    /// # Example
-    /// ```
-    /// use create_vox::Voxobject;
-    ///
-    /// let mut loaded_vox = Voxobject::load("my_vox.vox").expect("failed to open file");
-    /// loaded_vox.set_all_palette_color(255,0,255,255);
-    /// loaded_vox.save_as_file("new_vox.vox");
-    /// ```
-    pub fn load(file_path: &str) -> Result<Voxobject, &str> {
-        let mut file = match File::open(file_path) {
-            Err(_) => return Err("failed to open file"),
-            Ok(file) => file,
-        };
-        Ok(loader::load_voxobject(&mut file))
-    }
-
-    /// Loads a voxobject from the file given
-    ///
-    /// # Example
-    /// ```
-    /// use create_vox::Voxobject;
-    /// use std::fs::File;
-    ///
-    /// let mut vox_file = File::open("my_vox.vox").expect("failed to open file");
-    /// let mut loaded_vox = Voxobject::load_from_file(&mut vox_file);
-    /// loaded_vox.set_all_palette_color(255,0,255,255);
-    /// loaded_vox.save_as_file("new_vox.vox");
-    /// ```
-    pub fn load_from_file(file: &mut File) -> Voxobject {
-        loader::load_voxobject(file)
-    }
 }
-
-// impl Add for Voxobject {
-//     type Output = Voxobject;
-//
-//     fn add(self, other: Voxobject) -> Voxobject {
-//         let mut new_voxobject = Voxobject::new(self.size.0, self.size.1, self.size.2);
-//         let mut other_voxels = other.voxels;
-//         new_voxobject.voxels = self.models[0].voxels;
-//         new_voxobject.palette = self.palette;
-//         new_voxobject.voxels.append(&mut other_voxels);
-//
-//         new_voxobject
-//     }
-// }
-
-// impl Add<Voxel> for Voxobject {
-//     type Output = Voxobject;
-//
-//     fn add(self, other: Voxel) -> Voxobject {
-//         let mut new_voxobject = self.clone();
-//         new_voxobject.voxels.push(other);
-//
-//         new_voxobject
-//     }
-// }
-
-// impl AddAssign for Voxobject {
-//     fn add_assign(&mut self, other: Voxobject) {
-//         self.models[0].voxels.append(&mut other.voxels.clone());
-//     }
-// }
 
 impl AddAssign<Voxel> for Voxobject {
     fn add_assign(&mut self, other: Voxel) {
         self.models[0].voxels.push(other);
     }
 }
-
-// impl PartialEq for Voxobject {
-//     fn eq(&self, other: &Voxobject) -> bool {
-//         self.models[0].voxels == other..models[0].voxels
-//     }
-// }
 
 //used for gradient
 fn get_middle(a: u8, b: u8, point_between: f32) -> u8 {

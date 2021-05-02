@@ -1,11 +1,7 @@
 use crate::model::Model;
 use crate::Color;
 use crate::node::Node;
-use crate::riff;
-use std::fs::File;
-use std::io::{Read, BufWriter};
-use crate::writing::{write_slice, write_string_literal};
-use crate::riff::{write_chunk, LAYR, num_of_chunks};
+use crate::riff::LAYR;
 
 pub struct VoxFile{
     pub models: Vec<Model>,
@@ -16,7 +12,7 @@ pub struct VoxFile{
 
 impl VoxFile{
     //size in bytes when written
-    pub fn get_size(&self) -> i32{
+    pub(in crate::voxfile) fn get_size(&self) -> i32{
         let mut size = 1024;
         for model in self.models.iter(){
             size += model.get_size();
