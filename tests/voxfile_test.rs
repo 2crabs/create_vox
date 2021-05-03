@@ -2,7 +2,7 @@ use std::io::Read;
 
 #[test]
 fn write(){
-    let mut vox = create_vox::voxfile::VoxFile::load("complex.vox");
+    let mut vox = create_vox::VoxFile::load("complex.vox");
     vox.write("voxfile.vox");
 
     println!("speed 1: {}", easybench::bench(|| {
@@ -11,7 +11,7 @@ fn write(){
         file.read_to_end(&mut contents).expect("failed to read contents");
     }));
     println!("speed 2: {}", easybench::bench(|| {
-        let mut vox2 = create_vox::voxfile::VoxFile::load("voxfile.vox");
+        let mut vox2 = create_vox::VoxFile::load("voxfile.vox");
         //vox2.write("voxfile.vox");
     }));
 }
