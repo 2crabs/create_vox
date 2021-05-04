@@ -1,13 +1,13 @@
 use crate::model::Model;
 use crate::Color;
 use crate::node::Node;
-use crate::riff::LAYR;
+use crate::layer::Layer;
 
 pub struct VoxFile{
     pub models: Vec<Model>,
     pub palette: [Color; 256],
     pub root_node: Node,
-    pub layers: Vec<LAYR>
+    pub layers: Vec<Layer>
 }
 
 impl VoxFile{

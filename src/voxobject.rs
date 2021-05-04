@@ -298,7 +298,7 @@ impl Voxobject {
         endz: u8,
         colorindex: u8,
     ) -> Result<(), &str> {
-        if endx as u16 > self.size.0 || endx as u16 > self.size.0 || endx as u16 > self.size.0 {
+        if endx as u16 > self.size.0 || endx as u16 > self.size.1 || endx as u16 > self.size.2 {
             return Err("Cube too large");
         }
         for currentx in startx..endx {
@@ -329,7 +329,7 @@ impl Voxobject {
             }
         }
 
-        return false;
+        false
     }
 
     pub fn add_model(&mut self, x: u16, y: u16, z: u16) {
@@ -375,7 +375,7 @@ impl Voxobject {
     /// ```
     pub fn change_voxels<T>(&mut self, mut closure: T)
     where
-        T: FnMut(&mut Voxel) -> (),
+        T: FnMut(&mut Voxel),
     {
         let voxel_iter = self.models[0].voxels.iter_mut();
 

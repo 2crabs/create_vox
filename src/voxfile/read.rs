@@ -5,6 +5,7 @@ use crate::riff;
 use std::fs::File;
 use std::io::Read;
 use crate::riff::{LAYR, num_of_chunks};
+use crate::layer::Layer;
 
 impl VoxFile{
     pub fn load(path: &str) -> VoxFile{
@@ -38,7 +39,7 @@ impl VoxFile{
         let mut layers = Vec::new();
         for i in 1..(num_of_chunks(&contents, String::from("LAYR")) + 1) {
             let mut chunk_pos = riff::find_chunk(&contents, String::from("LAYR"), i).expect("could not find SIZE chunk") as i32;
-            layers.push(LAYR::read(&contents, &mut chunk_pos));
+            layers.push(Layer::from_chunk(LAYR::read(&contents, &mut chunk_pos)));
         }
 
         VoxFile{

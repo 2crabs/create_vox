@@ -9,6 +9,7 @@ mod voxel;
 mod voxobject;
 mod writing;
 mod voxfile;
+mod layer;
 
 pub use color::*;
 pub use voxfile::VoxFile;

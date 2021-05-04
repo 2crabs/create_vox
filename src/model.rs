@@ -61,7 +61,7 @@ impl Model {
     }
 
     //start at size chunk
-    pub fn read(input: &Vec<u8>, cursor: &mut i32) -> Model {
+    pub(crate) fn read(input: &Vec<u8>, cursor: &mut i32) -> Model {
         use crate::riff::i32_from_vec;
         *cursor += 12;
         let size_x = i32_from_vec(input, cursor) as u16;

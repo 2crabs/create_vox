@@ -174,9 +174,9 @@ impl nTRN {
     }
 
     pub fn has_translation(&self) -> Option<(i32, i32, i32)> {
-        if self.frame_attributes.pairs.len() >= 1 {
+        if !self.frame_attributes.pairs.is_empty() {
             for attribute in self.frame_attributes.pairs.iter() {
-                if attribute.0.content == String::from("_t") {
+                if attribute.0.content == *"_t" {
                     let parsed = parse_string(&attribute.1.content);
                     return Some((parsed[0], parsed[1], parsed[2]));
                 }
@@ -187,9 +187,9 @@ impl nTRN {
     }
 
     pub fn has_rotation(&self) -> Option<i32>{
-        if self.frame_attributes.pairs.len() >= 1 {
+        if !self.frame_attributes.pairs.is_empty() {
             for attribute in self.frame_attributes.pairs.iter() {
-                if attribute.0.content == String::from("_r") {
+                if attribute.0.content == *"_r" {
                     let parsed = parse_string(&attribute.1.content);
                     return Some(parsed[0]);
                 }
@@ -352,10 +352,10 @@ impl MATL {
 #[allow(non_camel_case_types)]
 #[derive(Debug)]
 pub struct LAYR {
-    layer_id: i32,
-    layer_attributes: Dict,
+    pub layer_id: i32,
+    pub layer_attributes: Dict,
     //must be -1
-    reserved_id: i32,
+    pub reserved_id: i32,
 }
 
 impl LAYR {
@@ -490,7 +490,7 @@ pub fn node_attributes_from_dict(dict: &Dict) -> NodeAttributes {
     let mut name = None;
     let mut hidden = None;
     for pair in dict.pairs.iter() {
-        if pair.0.content == String::from("_hidden") {
+        if pair.0.content == *"_hidden" {
             hidden = if (pair.1.content.parse::<i32>().unwrap()) == 1 {
                 Some(true)
             } else {
@@ -498,7 +498,7 @@ pub fn node_attributes_from_dict(dict: &Dict) -> NodeAttributes {
             }
         }
 
-        if pair.0.content == String::from("_name") {
+        if pair.0.content == *"_name" {
             name = Some(pair.1.content.clone())
         }
     }
@@ -514,16 +514,16 @@ pub fn add_node_children(
 ) {
     for _i in 0..num_of_children {
         let name = chunk_name(contents, cursor);
-        if name == String::from("nTRN") {
+        if name == *"nTRN" {
             let chunk = nTRN::read(contents, cursor);
             let mut new_node = chunk.to_node();
             add_node_children(&mut new_node, 1, cursor, contents);
             node.add_child(new_node);
-        } else if name == String::from("nSHP") {
+        } else if name == *"nSHP" {
             let chunk = nSHP::read(contents, cursor);
             let new_node = chunk.to_node();
             node.add_child(new_node);
-        } else if name == String::from("nGRP") {
+        } else if name == *"nGRP" {
             let chunk = nGRP::read(contents, cursor);
             let num_children = chunk.num_of_children_nodes;
             let mut new_node = chunk.to_node();
