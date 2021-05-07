@@ -4,11 +4,15 @@ use crate::writing::*;
 use crate::*;
 use std::fs::File;
 use std::io::BufWriter;
+use crate::node::{Node, NodeType, Transform, NodeAttributes};
 
 #[derive(Clone)]
 pub struct Model {
     pub size: (u16, u16, u16),
     pub(crate) voxels: Vec<Voxel>,
+    pub position: Option<(i32, i32, i32)>,
+    pub layer: Option<i32>,
+    pub id: i32
 }
 
 #[allow(unused_variables)]
@@ -18,6 +22,9 @@ impl Model {
         Model {
             size: (x, y, z),
             voxels: Vec::new(),
+            position: None,
+            layer: None,
+            id: 0
         }
     }
 
@@ -61,7 +68,7 @@ impl Model {
     }
 
     //start at size chunk
-    pub(crate) fn read(input: &Vec<u8>, cursor: &mut i32) -> Model {
+    pub(crate) fn read(input: &Vec<u8>, cursor: &mut i32, id: i32) -> Model {
         use crate::riff::i32_from_vec;
         *cursor += 12;
         let size_x = i32_from_vec(input, cursor) as u16;
@@ -85,6 +92,26 @@ impl Model {
         Model {
             size: (size_x, size_y, size_z),
             voxels,
+            position: None,
+            layer: None,
+            id
+        }
+    }
+
+    pub fn to_node(&self) -> Node{
+        let mut transform_node = Node::new(NodeType::Transform(self.transform_data()), NodeAttributes::new());
+        let shape_node = Node::new(NodeType::Shape(self.id), NodeAttributes::new());
+        transform_node.add_child(shape_node);
+
+        transform_node
+    }
+
+    //puts data into Transform struct
+    pub fn transform_data(&self) -> Transform {
+        Transform {
+            layer: self.layer.unwrap_or_else(|| 0),
+            rotation: None,
+            translation: self.position
         }
     }
 

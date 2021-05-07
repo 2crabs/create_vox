@@ -1,8 +1,9 @@
 use crate::riff::{nGRP, nSHP, nTRN, Dict, VoxString};
 use std::fs::File;
 use std::io::BufWriter;
+use crate::VoxFile;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum NodeType {
     Transform(Transform),
     Group,
@@ -10,7 +11,7 @@ pub enum NodeType {
     Shape(i32),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Node {
     pub node_type: NodeType,
     pub id: i32,
@@ -161,9 +162,33 @@ impl Node {
         self.get_children_size(&mut size);
         size
     }
+
+    pub fn has_child_shape(&self) -> bool {
+        for child in self.children.iter() {
+            match child.node_type {
+                NodeType::Shape(_) => {return true},
+                _ => {}
+            }
+        }
+        false
+    }
+
+    pub fn get_child_data_to_models(&self, voxfile: &mut VoxFile) {
+        self.make_model_data(voxfile);
+        for child in self.children.iter() {
+            child.get_child_data_to_models(voxfile);
+        }
+    }
+
+    pub fn make_model_data(&self,  voxfile: &mut VoxFile){
+        let data = VoxFile::check_transform(self);
+        if data.is_some() {
+            voxfile.change_model_data(data.unwrap().0, data.unwrap().1, data.unwrap().2);
+        }
+    }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct NodeAttributes {
     pub name: Option<String>,
     pub hidden: Option<bool>,
@@ -217,7 +242,7 @@ impl NodeAttributes {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Transform {
     pub layer: i32,
     //need to make rotation type
@@ -275,6 +300,14 @@ impl Transform {
             self.translation.unwrap().1,
             self.translation.unwrap().2
         )
+    }
+
+    pub fn default() -> Transform{
+        Transform {
+            layer: 0,
+            rotation: None,
+            translation: None
+        }
     }
 
 }

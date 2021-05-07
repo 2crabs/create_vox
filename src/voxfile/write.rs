@@ -7,6 +7,9 @@ use crate::riff::write_chunk;
 
 impl VoxFile{
     pub fn write(&mut self, path: &str){
+        //setups nodes for all children
+        self.make_nodes();
+
         let file = File::create(path).expect("failed to create file");
         let mut writer = BufWriter::new(file);
         write_string_literal(&mut writer, "VOX ");

@@ -20,7 +20,7 @@ impl VoxFile{
 
         for i in 1..(num_of_models + 1) {
             let mut chunk_pos = riff::find_chunk(&contents, String::from("SIZE"), i).expect("could not find SIZE chunk") as i32;
-            models.push(Model::read(&contents, &mut chunk_pos));
+            models.push(Model::read(&contents, &mut chunk_pos, i - 1));
         }
 
 
@@ -42,11 +42,15 @@ impl VoxFile{
             layers.push(Layer::from_chunk(LAYR::read(&contents, &mut chunk_pos)));
         }
 
-        VoxFile{
+        let mut voxfile = VoxFile{
             models,
             palette,
             root_node: riff::nodes_from_chunks(&contents),
             layers
-        }
+        };
+
+        voxfile.get_node_data();
+
+        voxfile
     }
 }
