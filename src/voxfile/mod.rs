@@ -1,5 +1,5 @@
 pub use voxfile::VoxFile;
 
-mod voxfile;
 mod read;
+mod voxfile;
 mod write;

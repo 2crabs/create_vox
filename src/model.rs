@@ -1,10 +1,10 @@
 use crate::convert::*;
+use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::riff::write_chunk;
 use crate::writing::*;
 use crate::*;
 use std::fs::File;
 use std::io::BufWriter;
-use crate::node::{Node, NodeType, Transform, NodeAttributes};
 
 #[derive(Clone)]
 pub struct Model {
@@ -12,7 +12,7 @@ pub struct Model {
     pub(crate) voxels: Vec<Voxel>,
     pub position: Option<(i32, i32, i32)>,
     pub layer: Option<i32>,
-    pub id: i32
+    pub id: i32,
 }
 
 #[allow(unused_variables)]
@@ -24,7 +24,7 @@ impl Model {
             voxels: Vec::new(),
             position: None,
             layer: None,
-            id: 0
+            id: 0,
         }
     }
 
@@ -82,9 +82,9 @@ impl Model {
         *cursor += 4;
         let mut voxels = Vec::new();
         for i in 0..num_of_voxels {
-            let x = input[(*cursor + 4 * i ) as usize];
+            let x = input[(*cursor + 4 * i) as usize];
             let y = input[(*cursor + 1 + 4 * i) as usize];
-            let z = input[(*cursor + 2 + 4 *i) as usize];
+            let z = input[(*cursor + 2 + 4 * i) as usize];
             let index = input[(*cursor + 3 + 4 * i) as usize];
             voxels.push(Voxel::new(x, y, z, index))
         }
@@ -94,12 +94,15 @@ impl Model {
             voxels,
             position: None,
             layer: None,
-            id
+            id,
         }
     }
 
-    pub fn to_node(&self) -> Node{
-        let mut transform_node = Node::new(NodeType::Transform(self.transform_data()), NodeAttributes::new());
+    pub fn to_node(&self) -> Node {
+        let mut transform_node = Node::new(
+            NodeType::Transform(self.transform_data()),
+            NodeAttributes::new(),
+        );
         let shape_node = Node::new(NodeType::Shape(self.id), NodeAttributes::new());
         transform_node.add_child(shape_node);
 
@@ -111,7 +114,7 @@ impl Model {
         Transform {
             layer: self.layer.unwrap_or_else(|| 0),
             rotation: None,
-            translation: self.position
+            translation: self.position,
         }
     }
 

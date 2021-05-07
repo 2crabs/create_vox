@@ -1,7 +1,7 @@
 use crate::riff::{nGRP, nSHP, nTRN, Dict, VoxString};
+use crate::VoxFile;
 use std::fs::File;
 use std::io::BufWriter;
-use crate::VoxFile;
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum NodeType {
@@ -35,7 +35,7 @@ impl Node {
         }
     }
 
-    pub fn number_nodes(&mut self, start: i32) -> i32{
+    pub fn number_nodes(&mut self, start: i32) -> i32 {
         let mut id = start;
         self.id = start;
         for child in self.children.iter_mut() {
@@ -45,7 +45,7 @@ impl Node {
         id
     }
 
-    pub fn number_children_ids(&mut self){
+    pub fn number_children_ids(&mut self) {
         for child in self.children.iter_mut() {
             self.children_ids.push(child.id);
             child.number_children_ids();
@@ -109,25 +109,22 @@ impl Node {
     pub fn write_all(&mut self, buf_writer: &mut BufWriter<File>) {
         self.number_nodes(0);
         self.number_children_ids();
-        self.write( buf_writer);
+        self.write(buf_writer);
         self.write_children(buf_writer)
     }
 
-
-    pub fn get_size(&self) -> i32{
+    pub fn get_size(&self) -> i32 {
         match &(*self).node_type {
-            NodeType::Transform(trans) => {
-                nTRN {
-                    node_id: 0,
-                    node_attributes: self.attributes.to_dict(),
-                    child_node_id: 0,
-                    reserved_id: 0,
-                    layer_id: -1,
-                    num_of_frames: 1,
-                    frame_attributes: trans.to_dict(),
-                }
-                    .get_size()
+            NodeType::Transform(trans) => nTRN {
+                node_id: 0,
+                node_attributes: self.attributes.to_dict(),
+                child_node_id: 0,
+                reserved_id: 0,
+                layer_id: -1,
+                num_of_frames: 1,
+                frame_attributes: trans.to_dict(),
             }
+            .get_size(),
 
             NodeType::Group => nGRP {
                 node_id: 0,
@@ -135,7 +132,7 @@ impl Node {
                 num_of_children_nodes: self.children.len() as i32,
                 child_id: vec![0; self.children.len()],
             }
-                .get_size(),
+            .get_size(),
 
             NodeType::Shape(model_id) => nSHP {
                 node_id: 0,
@@ -146,18 +143,19 @@ impl Node {
                     num_of_pairs: 0,
                     pairs: vec![],
                 },
-            }.get_size()
+            }
+            .get_size(),
         }
     }
 
-    pub fn get_children_size(&self, size: &mut i32){
-        for child in self.children.iter(){
+    pub fn get_children_size(&self, size: &mut i32) {
+        for child in self.children.iter() {
             *size += child.get_size();
             child.get_children_size(size);
-        };
+        }
     }
 
-    pub fn get_all_size(&self) -> i32{
+    pub fn get_all_size(&self) -> i32 {
         let mut size = self.get_size();
         self.get_children_size(&mut size);
         size
@@ -166,7 +164,7 @@ impl Node {
     pub fn has_child_shape(&self) -> bool {
         for child in self.children.iter() {
             match child.node_type {
-                NodeType::Shape(_) => {return true},
+                NodeType::Shape(_) => return true,
                 _ => {}
             }
         }
@@ -180,7 +178,7 @@ impl Node {
         }
     }
 
-    pub fn make_model_data(&self,  voxfile: &mut VoxFile){
+    pub fn make_model_data(&self, voxfile: &mut VoxFile) {
         let data = VoxFile::check_transform(self);
         if data.is_some() {
             voxfile.change_model_data(data.unwrap().0, data.unwrap().1, data.unwrap().2);
@@ -302,14 +300,13 @@ impl Transform {
         )
     }
 
-    pub fn default() -> Transform{
+    pub fn default() -> Transform {
         Transform {
             layer: 0,
             rotation: None,
-            translation: None
+            translation: None,
         }
     }
-
 }
 
 pub fn bool_to_string(value: bool) -> String {

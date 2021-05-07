@@ -186,7 +186,7 @@ impl nTRN {
         None
     }
 
-    pub fn has_rotation(&self) -> Option<i32>{
+    pub fn has_rotation(&self) -> Option<i32> {
         if !self.frame_attributes.pairs.is_empty() {
             for attribute in self.frame_attributes.pairs.iter() {
                 if attribute.0.content == *"_r" {

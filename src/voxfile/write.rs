@@ -1,12 +1,11 @@
+use crate::riff::write_chunk;
 use crate::voxfile::VoxFile;
+use crate::writing::{write_slice, write_string_literal};
 use std::fs::File;
 use std::io::BufWriter;
-use crate::writing::{write_slice, write_string_literal};
-use crate::riff::write_chunk;
 
-
-impl VoxFile{
-    pub fn write(&mut self, path: &str){
+impl VoxFile {
+    pub fn write(&mut self, path: &str) {
         //setups nodes for all children
         self.make_nodes();
 
@@ -16,11 +15,11 @@ impl VoxFile{
         write_slice(&mut writer, &[0, 0, 0, 0]);
 
         write_chunk("MAIN", 0, self.get_size() as u32, &mut writer);
-        for model in self.models.iter(){
+        for model in self.models.iter() {
             model.write(&mut writer);
         }
         self.root_node.write_all(&mut writer);
-        for layer in self.layers.iter(){
+        for layer in self.layers.iter() {
             layer.write(&mut writer);
         }
         write_chunk("RGBA", 1024, 0, &mut writer);

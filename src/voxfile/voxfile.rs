@@ -1,23 +1,23 @@
-use crate::model::Model;
-use crate::Color;
-use crate::node::{Node, NodeType, Transform, NodeAttributes};
 use crate::layer::Layer;
+use crate::model::Model;
+use crate::node::{Node, NodeAttributes, NodeType, Transform};
+use crate::Color;
 
-pub struct VoxFile{
+pub struct VoxFile {
     pub models: Vec<Model>,
     pub palette: [Color; 256],
     pub root_node: Node,
-    pub layers: Vec<Layer>
+    pub layers: Vec<Layer>,
 }
 
-impl VoxFile{
+impl VoxFile {
     //size in bytes when written
-    pub(in crate::voxfile) fn get_size(&self) -> i32{
+    pub(in crate::voxfile) fn get_size(&self) -> i32 {
         let mut size = 1024;
-        for model in self.models.iter(){
+        for model in self.models.iter() {
             size += model.get_size();
         }
-        for layer in self.layers.iter(){
+        for layer in self.layers.iter() {
             size += layer.get_size()
         }
         size += self.root_node.get_all_size();
@@ -25,7 +25,10 @@ impl VoxFile{
     }
 
     pub(in crate::voxfile) fn make_nodes(&mut self) {
-        let mut root_node = Node::new(NodeType::Transform(Transform::default()), NodeAttributes::new());
+        let mut root_node = Node::new(
+            NodeType::Transform(Transform::default()),
+            NodeAttributes::new(),
+        );
         let mut group_node = Node::new(NodeType::Group, NodeAttributes::new());
 
         for model in self.models.iter() {
@@ -42,7 +45,9 @@ impl VoxFile{
     }
 
     //(id, pos, layer)
-    pub fn check_transform(transform_node: &Node) -> Option<(i32, Option<(i32, i32, i32)>, Option<i32>)>{
+    pub fn check_transform(
+        transform_node: &Node,
+    ) -> Option<(i32, Option<(i32, i32, i32)>, Option<i32>)> {
         let id: i32;
         let pos: Option<(i32, i32, i32)>;
         let layer: Option<i32>;
@@ -52,7 +57,7 @@ impl VoxFile{
                 pos = trans.translation;
                 layer = Some(trans.layer)
             }
-            _ => {return None}
+            _ => return None,
         }
 
         if transform_node.has_child_shape() {
@@ -60,17 +65,17 @@ impl VoxFile{
                 NodeType::Shape(shape_id) => {
                     id = shape_id;
                 }
-                _ => {return None}
+                _ => return None,
             }
         } else {
-            return None
+            return None;
         }
 
         Some((id, pos, layer))
     }
 
     //finds model by id and edits it with given data
-    pub fn change_model_data(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>){
+    pub fn change_model_data(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>) {
         for model in self.models.iter_mut() {
             if model.id == id {
                 model.position = pos;
