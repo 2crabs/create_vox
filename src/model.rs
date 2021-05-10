@@ -13,6 +13,7 @@ pub struct Model {
     pub position: Option<(i32, i32, i32)>,
     pub rotation: Option<u8>,
     pub layer: Option<i32>,
+    pub name: Option<String>,
     pub id: i32,
 }
 
@@ -26,6 +27,7 @@ impl Model {
             position: None,
             rotation: None,
             layer: None,
+            name: None,
             id: 0,
         }
     }
@@ -97,14 +99,17 @@ impl Model {
             position: None,
             rotation: None,
             layer: None,
+            name: None,
             id,
         }
     }
 
     pub fn to_node(&self) -> Node {
+        let mut attributes = NodeAttributes::new();
+        attributes.name = self.name.clone();
         let mut transform_node = Node::new(
             NodeType::Transform(self.transform_data()),
-            NodeAttributes::new(),
+            attributes,
         );
         let shape_node = Node::new(NodeType::Shape(self.id), NodeAttributes::new());
         transform_node.add_child(shape_node);

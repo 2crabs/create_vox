@@ -5,8 +5,8 @@ use std::io::BufWriter;
 
 pub struct Layer {
     id: i32,
-    name: Option<String>,
-    hidden: Option<bool>,
+    pub name: Option<String>,
+    pub hidden: Option<bool>,
 }
 
 impl Layer {

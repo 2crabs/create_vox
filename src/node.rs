@@ -181,7 +181,7 @@ impl Node {
     pub fn make_model_data(&self, voxfile: &mut VoxFile) {
         let data = VoxFile::check_transform(self);
         if data.is_some() {
-            voxfile.change_model_data(data.unwrap().0, data.unwrap().1, data.unwrap().2, data.unwrap().3);
+            voxfile.change_model_data(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.unwrap().4);
         }
     }
 }

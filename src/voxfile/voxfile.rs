@@ -44,10 +44,10 @@ impl VoxFile {
         self.root_node.clone().get_child_data_to_models(self)
     }
 
-    //(id, pos, layer, rot)
+    //(id, pos, layer, rot, name)
     pub fn check_transform(
         transform_node: &Node,
-    ) -> Option<(i32, Option<(i32, i32, i32)>, Option<i32>, Option<u8>)> {
+    ) -> Option<(i32, Option<(i32, i32, i32)>, Option<i32>, Option<u8>, Option<String>)> {
         let id: i32;
         let pos: Option<(i32, i32, i32)>;
         let layer: Option<i32>;
@@ -76,16 +76,19 @@ impl VoxFile {
             return None;
         }
 
-        Some((id, pos, layer, rot))
+        let name = transform_node.attributes.name.clone();
+
+        Some((id, pos, layer, rot, name))
     }
 
     //finds model by id and edits it with given data
-    pub fn change_model_data(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>, rot: Option<u8>) {
+    pub fn change_model_data(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>, rot: Option<u8>, name: Option<String>) {
         for model in self.models.iter_mut() {
             if model.id == id {
                 model.position = pos;
                 model.layer = layer;
                 model.rotation = rot;
+                model.name = name.clone();
             }
         }
     }
