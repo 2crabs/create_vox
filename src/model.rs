@@ -11,6 +11,7 @@ pub struct Model {
     pub size: (u16, u16, u16),
     pub(crate) voxels: Vec<Voxel>,
     pub position: Option<(i32, i32, i32)>,
+    pub rotation: Option<u8>,
     pub layer: Option<i32>,
     pub id: i32,
 }
@@ -23,6 +24,7 @@ impl Model {
             size: (x, y, z),
             voxels: Vec::new(),
             position: None,
+            rotation: None,
             layer: None,
             id: 0,
         }
@@ -93,6 +95,7 @@ impl Model {
             size: (size_x, size_y, size_z),
             voxels,
             position: None,
+            rotation: None,
             layer: None,
             id,
         }
@@ -113,7 +116,10 @@ impl Model {
     pub fn transform_data(&self) -> Transform {
         Transform {
             layer: self.layer.unwrap_or_else(|| 0),
-            rotation: None,
+            rotation: match self.rotation {
+                None => None,
+                Some(rot) => Some(rot as i32)
+            },
             translation: self.position,
         }
     }
