@@ -1,5 +1,6 @@
 mod color;
 mod convert;
+mod copy;
 mod layer;
 mod model;
 #[allow(dead_code)]
@@ -10,7 +11,6 @@ mod voxel;
 mod voxfile;
 mod voxobject;
 mod writing;
-mod copy;
 
 pub use color::*;
 pub use model::Model;

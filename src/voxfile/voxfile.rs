@@ -1,15 +1,15 @@
+use crate::copy::ModelCopy;
 use crate::layer::Layer;
 use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
-use crate::copy::ModelCopy;
 
 pub struct VoxFile {
     pub models: Vec<Model>,
     pub palette: [Color; 256],
     pub root_node: Node,
     pub layers: Vec<Layer>,
-    pub copies: Vec<ModelCopy>
+    pub copies: Vec<ModelCopy>,
 }
 
 impl VoxFile {
@@ -45,15 +45,23 @@ impl VoxFile {
     }
 
     //takes data from nodes and applies it to models
-    pub fn get_node_data(&mut self) {
+    pub(crate) fn get_node_data(&mut self) {
         let mut used_model_ids = Vec::new();
-        self.root_node.clone().get_child_data_to_models(self, &mut used_model_ids)
+        self.root_node
+            .clone()
+            .get_child_data_to_models(self, &mut used_model_ids)
     }
 
     //(id, pos, layer, rot, name)
-    pub fn check_transform(
+    pub(crate) fn check_transform(
         transform_node: &Node,
-    ) -> Option<(i32, Option<(i32, i32, i32)>, Option<i32>, Option<u8>, Option<String>)> {
+    ) -> Option<(
+        i32,
+        Option<(i32, i32, i32)>,
+        Option<i32>,
+        Option<u8>,
+        Option<String>,
+    )> {
         let id: i32;
         let pos: Option<(i32, i32, i32)>;
         let layer: Option<i32>;
@@ -65,7 +73,7 @@ impl VoxFile {
                 layer = Some(trans.layer);
                 rot = match trans.rotation {
                     None => None,
-                    Some(rot) => Some(rot as u8)
+                    Some(rot) => Some(rot as u8),
                 };
             }
             _ => return None,
@@ -88,7 +96,14 @@ impl VoxFile {
     }
 
     //finds model by id and edits it with given data
-    pub fn change_model_data(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>, rot: Option<u8>, name: Option<String>) {
+    pub(crate) fn change_model_data(
+        &mut self,
+        id: i32,
+        pos: Option<(i32, i32, i32)>,
+        layer: Option<i32>,
+        rot: Option<u8>,
+        name: Option<String>,
+    ) {
         for model in self.models.iter_mut() {
             if model.id == id {
                 model.position = pos;
@@ -99,15 +114,20 @@ impl VoxFile {
         }
     }
 
-    pub fn add_copy(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>, rot: Option<u8>, name: Option<String>){
-        self.copies.push(
-            ModelCopy {
-                model_id: id,
-                position: pos,
-                rotation: rot,
-                layer,
-                name
-            }
-        )
+    pub(crate) fn add_copy(
+        &mut self,
+        id: i32,
+        pos: Option<(i32, i32, i32)>,
+        layer: Option<i32>,
+        rot: Option<u8>,
+        name: Option<String>,
+    ) {
+        self.copies.push(ModelCopy {
+            model_id: id,
+            position: pos,
+            rotation: rot,
+            layer,
+            name,
+        })
     }
 }

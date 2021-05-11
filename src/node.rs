@@ -181,10 +181,22 @@ impl Node {
     pub fn make_model_data(&self, voxfile: &mut VoxFile, used_ids: &mut Vec<i32>) {
         let data = VoxFile::check_transform(self);
         if data.is_some() {
-            if used_ids.contains(&data.as_ref().unwrap().0){
-                voxfile.add_copy(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.as_ref().unwrap().4.clone());
+            if used_ids.contains(&data.as_ref().unwrap().0) {
+                voxfile.add_copy(
+                    data.as_ref().unwrap().0,
+                    data.as_ref().unwrap().1,
+                    data.as_ref().unwrap().2,
+                    data.as_ref().unwrap().3,
+                    data.as_ref().unwrap().4.clone(),
+                );
             } else {
-                voxfile.change_model_data(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.as_ref().unwrap().4.clone());
+                voxfile.change_model_data(
+                    data.as_ref().unwrap().0,
+                    data.as_ref().unwrap().1,
+                    data.as_ref().unwrap().2,
+                    data.as_ref().unwrap().3,
+                    data.as_ref().unwrap().4.clone(),
+                );
                 used_ids.push(data.as_ref().unwrap().0);
             }
         }
@@ -233,7 +245,7 @@ impl NodeAttributes {
             None => {}
         };
 
-        match self.hidden.clone() {
+        match self.hidden {
             Some(value) => pairs.push((
                 VoxString::new(7, String::from("_hidden")),
                 VoxString::new(1, bool_to_string(value)),
