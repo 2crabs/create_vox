@@ -49,6 +49,7 @@ impl VoxFile {
             palette,
             root_node: riff::nodes_from_chunks(&contents),
             layers,
+            copies: vec![]
         };
 
         voxfile.get_node_data();

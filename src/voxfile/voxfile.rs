@@ -2,12 +2,14 @@ use crate::layer::Layer;
 use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
+use crate::copy::ModelCopy;
 
 pub struct VoxFile {
     pub models: Vec<Model>,
     pub palette: [Color; 256],
     pub root_node: Node,
     pub layers: Vec<Layer>,
+    pub copies: Vec<ModelCopy>
 }
 
 impl VoxFile {
@@ -34,14 +36,18 @@ impl VoxFile {
         for model in self.models.iter() {
             group_node.add_child(model.to_node());
         }
+
+        for copy in self.copies.iter() {
+            group_node.add_child(copy.to_node());
+        }
         root_node.add_child(group_node);
         self.root_node = root_node
     }
 
     //takes data from nodes and applies it to models
     pub fn get_node_data(&mut self) {
-        //need to change
-        self.root_node.clone().get_child_data_to_models(self)
+        let mut used_model_ids = Vec::new();
+        self.root_node.clone().get_child_data_to_models(self, &mut used_model_ids)
     }
 
     //(id, pos, layer, rot, name)
@@ -91,5 +97,17 @@ impl VoxFile {
                 model.name = name.clone();
             }
         }
+    }
+
+    pub fn add_copy(&mut self, id: i32, pos: Option<(i32, i32, i32)>, layer: Option<i32>, rot: Option<u8>, name: Option<String>){
+        self.copies.push(
+            ModelCopy {
+                model_id: id,
+                position: pos,
+                rotation: rot,
+                layer,
+                name
+            }
+        )
     }
 }

@@ -171,17 +171,22 @@ impl Node {
         false
     }
 
-    pub fn get_child_data_to_models(&self, voxfile: &mut VoxFile) {
-        self.make_model_data(voxfile);
+    pub fn get_child_data_to_models(&self, voxfile: &mut VoxFile, used_ids: &mut Vec<i32>) {
+        self.make_model_data(voxfile, used_ids);
         for child in self.children.iter() {
-            child.get_child_data_to_models(voxfile);
+            child.get_child_data_to_models(voxfile, used_ids);
         }
     }
 
-    pub fn make_model_data(&self, voxfile: &mut VoxFile) {
+    pub fn make_model_data(&self, voxfile: &mut VoxFile, used_ids: &mut Vec<i32>) {
         let data = VoxFile::check_transform(self);
         if data.is_some() {
-            voxfile.change_model_data(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.unwrap().4);
+            if used_ids.contains(&data.as_ref().unwrap().0){
+                voxfile.add_copy(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.as_ref().unwrap().4.clone());
+            } else {
+                voxfile.change_model_data(data.as_ref().unwrap().0, data.as_ref().unwrap().1, data.as_ref().unwrap().2, data.as_ref().unwrap().3, data.as_ref().unwrap().4.clone());
+                used_ids.push(data.as_ref().unwrap().0);
+            }
         }
     }
 }

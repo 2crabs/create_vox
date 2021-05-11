@@ -10,6 +10,7 @@ mod voxel;
 mod voxfile;
 mod voxobject;
 mod writing;
+mod copy;
 
 pub use color::*;
 pub use model::Model;
