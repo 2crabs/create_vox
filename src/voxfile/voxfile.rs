@@ -3,6 +3,8 @@ use crate::layer::Layer;
 use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
+use std::fs::File;
+use std::io::Write;
 
 pub struct VoxFile {
     pub models: Vec<Model>,
@@ -129,5 +131,27 @@ impl VoxFile {
             layer,
             name,
         })
+    }
+
+    pub fn new(size_x: u16, size_y: u16, size_z: u16) -> VoxFile {
+        if size_x > 256 || size_y > 256 || size_z > 256 {
+            panic!("size can not be greater than 256")
+        }
+        VoxFile {
+            models: vec![Model::new(size_x, size_y, size_z)],
+            palette: [Color {
+                r: 75,
+                g: 75,
+                b: 75,
+                a: 255,
+            }; 256],
+            root_node: Node::new(NodeType::Group, NodeAttributes::new()),
+            layers: vec![],
+            copies: vec![]
+        }
+    }
+
+    pub fn save(&mut self, file_path: &str){
+        self.write(file_path);
     }
 }

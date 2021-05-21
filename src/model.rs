@@ -32,7 +32,7 @@ impl Model {
         }
     }
 
-    pub fn write(&self, writer: &mut BufWriter<File>) {
+    pub(crate) fn write(&self, writer: &mut BufWriter<File>) {
         let size_slice: &[u8] = &[
             u16_to_array(self.size.0)[0],
             u16_to_array(self.size.0)[1],
@@ -104,7 +104,7 @@ impl Model {
         }
     }
 
-    pub fn to_node(&self) -> Node {
+    pub(crate) fn to_node(&self) -> Node {
         let mut attributes = NodeAttributes::new();
         attributes.name = self.name.clone();
         let mut transform_node = Node::new(NodeType::Transform(self.transform_data()), attributes);
@@ -115,7 +115,7 @@ impl Model {
     }
 
     //puts data into Transform struct
-    pub fn transform_data(&self) -> Transform {
+    pub(crate) fn transform_data(&self) -> Transform {
         Transform {
             layer: self.layer.unwrap_or_else(|| 0),
             rotation: match self.rotation {
@@ -128,5 +128,184 @@ impl Model {
 
     pub(crate) fn get_size(&self) -> i32 {
         self.voxels.len() as i32 * 4 + 4
+    }
+
+    //start of functions for users.
+
+
+    //needs testing
+    pub fn add_voxel(&mut self, new_voxel: Voxel) -> Result<(), &str> {
+        if (new_voxel.position.0 + 1) as u16 > self.size.0
+            || (new_voxel.position.1 + 1) as u16 > self.size.1
+            || (new_voxel.position.2 + 1) as u16 > self.size.2
+        {
+            return Err("Voxel position greater than Voxobject size");
+        }
+        self.voxels.push(new_voxel);
+        Ok(())
+    }
+
+    //needs testing
+    pub fn clear_voxels(&mut self) {
+        self.voxels.clear();
+    }
+
+    //needs testing
+    // adding checking for voxels
+    pub fn set_size(&mut self, x: u16, y: u16, z: u16) {
+        if x > 256 || y > 256 || z > 256 {
+            panic!("size can not be greater than 256");
+        }
+        self.size = (x, y, z);
+    }
+
+    //needs testing
+    pub fn auto_size(&mut self) {
+        let mut new_size = (1, 1, 1);
+        let mut smallest_pos: (u8, u8, u8) = (255, 255, 255);
+
+        //get smallest position of the voxels
+        for voxel in self.voxels.iter() {
+            if voxel.position.0 < smallest_pos.0 {
+                smallest_pos.0 = voxel.position.0
+            }
+            if voxel.position.1 < smallest_pos.1 {
+                smallest_pos.1 = voxel.position.1
+            }
+            if voxel.position.2 < smallest_pos.2 {
+                smallest_pos.2 = voxel.position.2
+            }
+        }
+        //move voxels
+        for voxel in self.voxels.iter_mut() {
+            voxel.position = (
+                voxel.position.0 - smallest_pos.0,
+                voxel.position.1 - smallest_pos.1,
+                voxel.position.2 - smallest_pos.2,
+            )
+        }
+
+        for voxel in self.voxels.iter() {
+            if (voxel.position.0 as u16) > new_size.0 - 1 {
+                new_size.0 = (voxel.position.0 + 1) as u16
+            }
+            if (voxel.position.1 as u16) > new_size.1 - 1 {
+                new_size.1 = (voxel.position.1 + 1) as u16
+            }
+            if (voxel.position.2 as u16) > new_size.2 - 1 {
+                new_size.2 = (voxel.position.2 + 1) as u16
+            }
+        }
+
+        self.size = new_size
+    }
+
+    //needs testing
+    pub fn add_cube(
+        &mut self,
+        startx: u8,
+        starty: u8,
+        startz: u8,
+        endx: u8,
+        endy: u8,
+        endz: u8,
+        colorindex: u8,
+    ) -> Result<(), &str> {
+        if endx as u16 > self.size.0 || endx as u16 > self.size.1 || endx as u16 > self.size.2 {
+            return Err("Cube too large");
+        }
+        for currentx in startx..endx {
+            for currenty in starty..endy {
+                for currentz in startz..endz {
+                    self.add_voxel(Voxel::new(currentx, currenty, currentz, colorindex))
+                        .unwrap();
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    //needs testing
+    pub fn is_voxel_at_pos(&self, x: u8, y: u8, z: u8) -> bool {
+        for voxel in self.voxels.iter() {
+            if voxel.position.0 == x && voxel.position.1 == y && voxel.position.2 == z {
+                return true;
+            }
+        }
+        false
+    }
+
+    //needs testing
+    fn check_voxels_pos(&mut self) {
+        let size = self.size;
+        self.voxels.retain(|voxel| {
+            (voxel.position.0 as u16) < size.0
+                && (voxel.position.1 as u16) < size.1
+                && (voxel.position.2 as u16) < size.2
+        });
+    }
+
+    pub fn add_voxel_at_pos(&mut self, x: u8, y: u8, z: u8, voxel_index: u8) -> Result<(), &str> {
+        if (x + 1) as u16 > self.size.0
+            || (y + 1) as u16 > self.size.1
+            || (z + 1) as u16 > self.size.2
+        {
+            return Err("Position greater than Voxobject size");
+        }
+        self.voxels.push(Voxel::new(x, y, z, voxel_index));
+        Ok(())
+    }
+
+    pub fn num_of_voxels(&self) -> i32 {
+        self.voxels.len() as i32
+    }
+
+    /// Keeps all of the voxels in the Voxobject that return true with the closure given
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut new_vox = Voxobject::new(10,10,10);
+    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    ///
+    /// new_vox.retain_voxels(|voxel| voxel.colorindex == 6);
+    ///
+    /// assert_eq!(2, new_vox.num_of_voxels());
+    /// ```
+    pub fn retain_voxels<T>(&mut self, closure: T)
+        where
+            T: FnMut(&Voxel) -> bool,
+    {
+        self.voxels.retain(closure);
+    }
+
+    /// Changes all the voxels in the Voxobject with the closure
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::Voxobject;
+    ///
+    /// let mut new_vox = Voxobject::new(10,10,10);
+    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
+    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    ///
+    /// new_vox.change_voxels(|voxel| voxel.colorindex = 3);
+    /// ```
+    pub fn change_voxels<T>(&mut self, mut closure: T)
+        where
+            T: FnMut(&mut Voxel),
+    {
+        let voxel_iter = self.voxels.iter_mut();
+
+        for voxel in voxel_iter {
+            closure(voxel);
+        }
     }
 }
