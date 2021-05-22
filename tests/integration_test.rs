@@ -12,9 +12,14 @@ fn it_works() {
     // my_vox.save_as_file("myvox.vox");
 
 
-    let mut my_vox = VoxFile::new(256, 256, 256);
-    my_vox.models[0].add_cube(0, 0, 0, 255, 255, 255, 70).unwrap();
-    my_vox.save("tester.vox");
+    //let mut my_vox = VoxFile::new(256, 256, 256);
+    //my_vox.models[0].add_cube(0, 0, 0, 10, 10, 10, 70).unwrap();
+
+    let mut my_vox = VoxFile::load("tester.vox");
+
+    println!("{}", easybench::bench(|| {
+        my_vox.save("tester2.vox");
+    }))
 }
 
 #[test]

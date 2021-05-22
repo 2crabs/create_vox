@@ -59,16 +59,15 @@ impl Model {
     }
 
     fn write_voxels(&self, buf_writer: &mut BufWriter<File>) {
+        let mut voxel_slice: Box<Vec<u8>> = Box::new(vec![]);
         for i in 0..self.voxels.len() {
-            buf_writer
-                .write(&[
-                    self.voxels[i].position.0,
-                    self.voxels[i].position.1,
-                    self.voxels[i].position.2,
-                    self.voxels[i].colorindex,
-                ])
-                .expect("failed to write voxels");
+            voxel_slice.push(self.voxels[i].position.0);
+            voxel_slice.push(self.voxels[i].position.1);
+            voxel_slice.push(self.voxels[i].position.2);
+            voxel_slice.push(self.voxels[i].colorindex);
         }
+        buf_writer.write(voxel_slice.as_slice()).unwrap();
+
     }
 
     //start at size chunk
