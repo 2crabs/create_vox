@@ -154,4 +154,8 @@ impl VoxFile {
     pub fn save(&mut self, file_path: &str){
         self.write(file_path);
     }
+
+    pub fn add_model_copy(&mut self, model_id: i32, x: i32, y: i32, z: i32) {
+        self.add_copy(model_id, Some((x, y, z)), None, None, None);
+    }
 }

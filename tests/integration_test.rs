@@ -2,24 +2,12 @@ use create_vox::{Color, Voxel, Voxobject, VoxFile};
 #[test]
 //#[ignore]
 fn it_works() {
-    // let mut my_vox = Voxobject::new(256, 256, 256);
-    // my_vox.set_all_palette_color(255, 0, 0, 255);
-    // my_vox.add_voxel(Voxel::new(0, 0, 0, 1)).unwrap();
-    // let color1 = Color::new(255, 255, 0, 255);
-    // let color2 = Color::new(0, 255, 255, 255);
-    // my_vox.add_gradient(1, 100, color1, color2);
-    // my_vox.add_cube(0, 0, 0, 255, 255, 255, 70).unwrap();
-    // my_vox.save_as_file("myvox.vox");
-
-
-    //let mut my_vox = VoxFile::new(256, 256, 256);
-    //my_vox.models[0].add_cube(0, 0, 0, 10, 10, 10, 70).unwrap();
-
     let mut my_vox = VoxFile::load("tester.vox");
+    my_vox.models[0].retain_voxels(|voxel| false);
+    my_vox.models[0].add_cube(0,0,0, 255,255, 255,70);
+    my_vox.add_model_copy(0, 255, 0,0);
+    my_vox.save("tester2.vox");
 
-    println!("{}", easybench::bench(|| {
-        my_vox.save("tester2.vox");
-    }))
 }
 
 #[test]
