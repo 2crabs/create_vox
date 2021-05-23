@@ -1,4 +1,4 @@
-pub(crate) fn i32_to_array(a: u32) -> [u8; 4] {
+pub(crate) fn u32_to_array(a: u32) -> [u8; 4] {
     a.to_ne_bytes()
 }
 

@@ -1,15 +1,18 @@
 mod color;
 mod convert;
-pub(crate) mod loader;
+mod copy;
+mod layer;
+mod model;
+#[allow(dead_code)]
+mod node;
+#[allow(dead_code)]
+mod riff;
 mod voxel;
-mod voxobject;
+mod voxfile;
 mod writing;
 
 pub use color::*;
+pub use model::Model;
 use std::io::Write;
 pub use voxel::*;
-pub use voxobject::*;
-use writing::*;
-
-#[cfg(test)]
-mod tests {}
+pub use voxfile::VoxFile;

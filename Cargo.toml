@@ -1,6 +1,6 @@
 [package]
 name = "create_vox"
-version = "0.6.0"
+version = "1.6.0"
 license = "MIT"
 authors = ["Mickey Fraser <mickey_fraser@outlook.com>"]
 description = "A rust library for creating magicavoxel files"
@@ -11,3 +11,6 @@ repository = "https://github.com/2crabs/create_vox"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[dev-dependencies]
+easybench = "1.1.0"
