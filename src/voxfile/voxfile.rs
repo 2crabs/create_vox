@@ -3,8 +3,6 @@ use crate::layer::Layer;
 use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
-use std::fs::File;
-use std::io::Write;
 
 pub struct VoxFile {
     pub models: Vec<Model>,
