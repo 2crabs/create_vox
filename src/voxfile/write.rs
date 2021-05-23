@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io::BufWriter;
 
 impl VoxFile {
-    pub fn write(&mut self, path: &str) {
+    pub(crate) fn write(&mut self, path: &str) {
         //setups nodes for all children
         self.make_nodes();
 

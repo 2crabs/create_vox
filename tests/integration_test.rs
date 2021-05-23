@@ -1,13 +1,15 @@
-use create_vox::{Color, Voxel, Voxobject, VoxFile};
+use create_vox::{Color, VoxFile, Voxel};
 #[test]
 //#[ignore]
 fn it_works() {
     let mut my_vox = VoxFile::load("tester.vox");
     my_vox.models[0].retain_voxels(|voxel| false);
-    my_vox.models[0].add_cube(0,0,0, 255,255, 255,70).unwrap();
-    my_vox.add_model_copy(0, 255, 0,0);
+    my_vox.models[0]
+        .add_cube(0, 0, 0, 255, 255, 255, 70)
+        .unwrap();
+    my_vox.add_model_copy(0, 255, 0, 0);
+    my_vox.set_all_palette_color(255, 0, 0, 255);
     my_vox.save("tester2.vox");
-
 }
 
 #[test]

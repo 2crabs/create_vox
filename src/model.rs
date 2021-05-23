@@ -67,7 +67,6 @@ impl Model {
             voxel_slice.push(self.voxels[i].colorindex);
         }
         buf_writer.write(voxel_slice.as_slice()).unwrap();
-
     }
 
     //start at size chunk
@@ -130,7 +129,6 @@ impl Model {
     }
 
     //start of functions for users.
-
 
     //needs testing
     pub fn add_voxel(&mut self, new_voxel: Voxel) -> Result<(), &str> {
@@ -277,8 +275,8 @@ impl Model {
     /// assert_eq!(2, new_vox.num_of_voxels());
     /// ```
     pub fn retain_voxels<T>(&mut self, closure: T)
-        where
-            T: FnMut(&Voxel) -> bool,
+    where
+        T: FnMut(&Voxel) -> bool,
     {
         self.voxels.retain(closure);
     }
@@ -298,8 +296,8 @@ impl Model {
     /// new_vox.change_voxels(|voxel| voxel.colorindex = 3);
     /// ```
     pub fn change_voxels<T>(&mut self, mut closure: T)
-        where
-            T: FnMut(&mut Voxel),
+    where
+        T: FnMut(&mut Voxel),
     {
         let voxel_iter = self.voxels.iter_mut();
 

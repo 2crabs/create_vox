@@ -145,11 +145,11 @@ impl VoxFile {
             }; 256],
             root_node: Node::new(NodeType::Group, NodeAttributes::new()),
             layers: vec![],
-            copies: vec![]
+            copies: vec![],
         }
     }
 
-    pub fn save(&mut self, file_path: &str){
+    pub fn save(&mut self, file_path: &str) {
         self.write(file_path);
     }
 

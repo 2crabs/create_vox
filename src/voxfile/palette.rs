@@ -1,7 +1,6 @@
-use crate::{VoxFile, Color};
+use crate::{Color, VoxFile};
 
 impl VoxFile {
-
     pub fn set_palette_color(&mut self, index: u8, r: u8, g: u8, b: u8, a: u8) {
         if index == 0 {
             panic!("index needs to be between 1 and 255");
