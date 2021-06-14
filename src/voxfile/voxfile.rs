@@ -4,6 +4,7 @@ use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
 
+/// Struct which holds all data for a .vox file such as models and palette
 pub struct VoxFile {
     pub models: Vec<Model>,
     pub palette: [Color; 256],

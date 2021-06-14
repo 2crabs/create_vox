@@ -18,10 +18,10 @@ fn size_too_big() {
 }
 
 #[test]
-#[should_panic]
-fn incorrect_index() {
-    //let mut test_vox = Voxobject::new(10, 10, 10);
-    //test_vox.set_palette_color(0, 255, 255, 255, 255);
+fn voxel_at_pos() {
+    let mut test_vox = VoxFile::new(10, 10, 10);
+    test_vox.models[0].add_voxel_at_pos(3,4,2,1);
+    assert_eq!(true, test_vox.models[0].is_voxel_at_pos(3, 4, 2));
 }
 
 #[test]

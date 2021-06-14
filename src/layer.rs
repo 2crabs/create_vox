@@ -25,7 +25,7 @@ impl Layer {
         }
     }
 
-    pub fn is_hidden(chunk: &LAYR) -> Option<bool> {
+    pub(crate) fn is_hidden(chunk: &LAYR) -> Option<bool> {
         if !chunk.layer_attributes.pairs.is_empty() {
             for pair in chunk.layer_attributes.pairs.iter() {
                 if pair.0.content == *"_hidden" {

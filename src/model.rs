@@ -6,6 +6,7 @@ use crate::*;
 use std::fs::File;
 use std::io::BufWriter;
 
+/// Holds voxel data
 #[derive(Clone)]
 pub struct Model {
     pub size: (u16, u16, u16),
@@ -20,6 +21,17 @@ pub struct Model {
 #[allow(unused_variables)]
 #[allow(dead_code)]
 impl Model {
+    /// Creates a new model with the size given
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Model};
+    ///
+    /// let mut vox = VoxFile::new(5,5,5);
+    ///
+    /// // adds a new model to the voxfile with a size 10 by 10 by 10
+    /// vox.models.push(Model::new(10, 10, 10));
+    /// ```
     pub fn new(x: u16, y: u16, z: u16) -> Model {
         Model {
             size: (x, y, z),
@@ -124,13 +136,23 @@ impl Model {
         }
     }
 
+    //size in bytes when written
     pub(crate) fn get_size(&self) -> i32 {
         self.voxels.len() as i32 * 4 + 4
     }
 
     //start of functions for users.
 
-    //needs testing
+    /// Adds a voxel to the model. It will return an error if the voxel does not fit inside the model.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Voxel};
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// let voxel = Voxel::new(4, 2, 2, 10);
+    /// vox.models[0].add_voxel(voxel);
+    /// ```
     pub fn add_voxel(&mut self, new_voxel: Voxel) -> Result<(), &str> {
         if (new_voxel.position.0 + 1) as u16 > self.size.0
             || (new_voxel.position.1 + 1) as u16 > self.size.1
@@ -142,13 +164,31 @@ impl Model {
         Ok(())
     }
 
-    //needs testing
+    /// Makes the size of the model as small as possible
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_cube(2, 2, 2, 10, 10, 10, 1);
+    /// vox.models[0].clear_voxels();
+    /// assert_eq!(0, vox.models[0].num_of_voxels());
+    /// ```
     pub fn clear_voxels(&mut self) {
         self.voxels.clear();
     }
 
-    //needs testing
-    // adding checking for voxels
+    /// Sets the size of the model. Size must be less than or equal to 256 on all axis.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(20,20,20);
+    /// vox.models[0].set_size(12,6,24);
+    /// assert_eq!(vox.models[0].size, (12, 6, 24));
+    /// ```
     pub fn set_size(&mut self, x: u16, y: u16, z: u16) {
         if x > 256 || y > 256 || z > 256 {
             panic!("size can not be greater than 256");
@@ -156,7 +196,16 @@ impl Model {
         self.size = (x, y, z);
     }
 
-    //needs testing
+    /// Makes the size of the model as small as possible
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_cube(2, 2, 2, 6, 7, 6, 1);
+    /// vox.models[0].auto_size();
+    /// ```
     pub fn auto_size(&mut self) {
         let mut new_size = (1, 1, 1);
         let mut smallest_pos: (u8, u8, u8) = (255, 255, 255);
@@ -197,7 +246,15 @@ impl Model {
         self.size = new_size
     }
 
-    //needs testing
+    /// Fills in the area between 2 points with voxels
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_cube(0, 0, 0, 5, 5, 5, 1);
+    /// ```
     pub fn add_cube(
         &mut self,
         startx: u8,
@@ -223,7 +280,16 @@ impl Model {
         Ok(())
     }
 
-    //needs testing
+    /// Checks if there is a voxel at the position
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_voxel_at_pos(3,4,3,1);
+    /// assert_eq!(true, vox.models[0].is_voxel_at_pos(3, 4, 3));
+    /// ```
     pub fn is_voxel_at_pos(&self, x: u8, y: u8, z: u8) -> bool {
         for voxel in self.voxels.iter() {
             if voxel.position.0 == x && voxel.position.1 == y && voxel.position.2 == z {
@@ -243,6 +309,22 @@ impl Model {
         });
     }
 
+    /// Adds a voxel at certain position
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(50,10,30);
+    /// vox.models[0].add_voxel_at_pos(1,1,1,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,2,5).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,3,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,4,7).unwrap();
+    ///
+    /// vox.models[0].retain_voxels(|voxel| voxel.colorindex == 6);
+    ///
+    /// assert_eq!(2, vox.models[0].num_of_voxels());
+    /// ```
     pub fn add_voxel_at_pos(&mut self, x: u8, y: u8, z: u8, voxel_index: u8) -> Result<(), &str> {
         if (x + 1) as u16 > self.size.0
             || (y + 1) as u16 > self.size.1
@@ -254,6 +336,20 @@ impl Model {
         Ok(())
     }
 
+    /// Returns the number of voxels in the model
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_voxel_at_pos(8,1,1,1).unwrap();
+    /// vox.models[0].add_voxel_at_pos(3,3,2,1).unwrap();
+    /// vox.models[0].add_voxel_at_pos(6,1,3,2).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,4,2).unwrap();
+    ///
+    /// assert_eq!(4, vox.models[0].num_of_voxels());
+    /// ```
     pub fn num_of_voxels(&self) -> i32 {
         self.voxels.len() as i32
     }
@@ -262,17 +358,17 @@ impl Model {
     ///
     /// # Example
     /// ```
-    /// use create_vox::Voxobject;
+    /// use create_vox::VoxFile;
     ///
-    /// let mut new_vox = Voxobject::new(10,10,10);
-    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    /// let mut vox = VoxFile::new(10,10,10);
+    /// vox.models[0].add_voxel_at_pos(1,1,1,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,2,5).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,3,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,4,7).unwrap();
     ///
-    /// new_vox.retain_voxels(|voxel| voxel.colorindex == 6);
+    /// vox.models[0].retain_voxels(|voxel| voxel.colorindex == 6);
     ///
-    /// assert_eq!(2, new_vox.num_of_voxels());
+    /// assert_eq!(2, vox.models[0].num_of_voxels());
     /// ```
     pub fn retain_voxels<T>(&mut self, closure: T)
     where
@@ -285,15 +381,16 @@ impl Model {
     ///
     /// # Example
     /// ```
-    /// use create_vox::Voxobject;
+    /// use create_vox::VoxFile;
     ///
-    /// let mut new_vox = Voxobject::new(10,10,10);
-    /// new_vox.add_voxel_at_pos(1,1,1,6).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,2,5).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,3,6).unwrap();
-    /// new_vox.add_voxel_at_pos(1,1,4,7).unwrap();
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.models[0].add_voxel_at_pos(1,1,1,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,2,5).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,3,6).unwrap();
+    /// vox.models[0].add_voxel_at_pos(1,1,4,7).unwrap();
     ///
-    /// new_vox.change_voxels(|voxel| voxel.colorindex = 3);
+    /// //make all voxels have index 3 on the palette as their color
+    /// vox.models[0].change_voxels(|voxel| voxel.colorindex = 3);
     /// ```
     pub fn change_voxels<T>(&mut self, mut closure: T)
     where
