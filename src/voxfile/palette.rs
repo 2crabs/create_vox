@@ -25,6 +25,18 @@ impl VoxFile {
         self.palette[new_index as usize].a = a;
     }
 
+    /// makes a gradient between 2 indexes on the palette
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Color};
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// let red = Color::new(255, 0, 0 , 255);
+    /// let blue = Color::new(0, 0, 255, 255);
+    ///
+    /// vox.add_gradient(1, 50, red, blue);
+    /// ```
     pub fn add_gradient(&mut self, index1: u8, index2: u8, color1: Color, color2: Color) {
         for i in index1..index2 {
             let fraction_between = ((i - index1) as f32) / ((index2 - index1) as f32);
@@ -38,6 +50,18 @@ impl VoxFile {
         }
     }
 
+    /// resets all colors in palette to grey
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Color};
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// let red = Color::new(255, 0, 0 , 255);
+    /// let blue = Color::new(0, 0, 255, 255);
+    ///
+    /// vox.add_gradient(1, 50, red, blue);
+    /// ```
     pub fn reset_palette(&mut self) {
         self.palette = [Color {
             r: 75,
@@ -47,6 +71,16 @@ impl VoxFile {
         }; 256];
     }
 
+    /// Gets a color from the palette
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Color};
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.set_palette_color(11, 255, 100, 0, 255);
+    /// assert_eq!(Color::new(255, 100, 0, 255), vox.get_palette_color(11));
+    /// ```
     pub fn get_palette_color(&self, index: u8) -> Color {
         if index == 0 {
             panic!("index needs to be between 1 and 255");
