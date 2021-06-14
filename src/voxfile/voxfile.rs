@@ -156,4 +156,8 @@ impl VoxFile {
     pub fn add_model_copy(&mut self, model_id: i32, x: i32, y: i32, z: i32) {
         self.add_copy(model_id, Some((x, y, z)), None, None, None);
     }
+
+    pub fn add_layer(&mut self, name: String, hidden: bool){
+        self.layers.push(Layer::new(name, hidden, self.layers.len() as i32))
+    }
 }

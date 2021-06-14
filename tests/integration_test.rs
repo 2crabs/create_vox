@@ -2,20 +2,19 @@ use create_vox::{Color, VoxFile, Voxel};
 #[test]
 //#[ignore]
 fn it_works() {
-    let mut my_vox = VoxFile::load("tester.vox");
-    my_vox.models[0].retain_voxels(|voxel| false);
-    my_vox.models[0]
-        .add_cube(0, 0, 0, 255, 255, 255, 70)
-        .unwrap();
-    my_vox.add_model_copy(0, 255, 0, 0);
-    my_vox.set_all_palette_color(255, 0, 0, 255);
-    my_vox.save("tester2.vox");
+    let mut vox = VoxFile::new(10, 10, 10);
+    vox.models[0].add_cube(0,0,0,5,5,5, 2).unwrap();
+    vox.set_palette_color(2, 255, 100, 0, 255);
+    vox.add_model_copy(0, 10,10,10);
+    vox.add_layer(String::from("cool layer"), false);
+    vox.models[0].layer = Some(1);
+    vox.save("tester.vox");
 }
 
 #[test]
 #[should_panic]
 fn size_too_big() {
-    //Voxobject::new(254, 300, 10);
+    VoxFile::new(254, 300, 10);
 }
 
 #[test]
