@@ -10,11 +10,11 @@ pub struct Layer {
 }
 
 impl Layer {
-    pub fn new(name: String, hidden: bool, id: i32) -> Layer{
+    pub fn new(name: String, hidden: bool, id: i32) -> Layer {
         Layer {
             id,
             name: Some(name),
-            hidden: Some(hidden)
+            hidden: Some(hidden),
         }
     }
     pub fn from_chunk(chunk: LAYR) -> Layer {

@@ -185,8 +185,9 @@ impl VoxFile {
     /// let mut vox = VoxFile::new(10, 10, 10);
     /// vox.models[0].layer = Some(vox.add_layer(String::from("my layer"), false));
     /// ```
-    pub fn add_layer(&mut self, name: String, hidden: bool) -> i32{
-        self.layers.push(Layer::new(name, hidden, self.layers.len() as i32));
+    pub fn add_layer(&mut self, name: String, hidden: bool) -> i32 {
+        self.layers
+            .push(Layer::new(name, hidden, self.layers.len() as i32));
         self.layers.len() as i32
     }
 }
