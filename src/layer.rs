@@ -10,6 +10,13 @@ pub struct Layer {
 }
 
 impl Layer {
+    pub fn new(name: String, hidden: bool, id: i32) -> Layer {
+        Layer {
+            id,
+            name: Some(name),
+            hidden: Some(hidden),
+        }
+    }
     pub fn from_chunk(chunk: LAYR) -> Layer {
         Layer {
             id: chunk.layer_id,
@@ -18,7 +25,7 @@ impl Layer {
         }
     }
 
-    pub fn is_hidden(chunk: &LAYR) -> Option<bool> {
+    pub(crate) fn is_hidden(chunk: &LAYR) -> Option<bool> {
         if !chunk.layer_attributes.pairs.is_empty() {
             for pair in chunk.layer_attributes.pairs.iter() {
                 if pair.0.content == *"_hidden" {

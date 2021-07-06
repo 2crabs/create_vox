@@ -4,6 +4,7 @@ use crate::model::Model;
 use crate::node::{Node, NodeAttributes, NodeType, Transform};
 use crate::Color;
 
+/// Struct which holds all data for a .vox file such as models and palette
 pub struct VoxFile {
     pub models: Vec<Model>,
     pub palette: [Color; 256],
@@ -131,6 +132,15 @@ impl VoxFile {
         })
     }
 
+    /// creates a new voxfile with one model with the size given.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let vox = VoxFile::new(30, 10, 10);
+    /// assert_eq!(vox.models[0].size, (30, 10, 10));
+    /// ```
     pub fn new(size_x: u16, size_y: u16, size_z: u16) -> VoxFile {
         if size_x > 256 || size_y > 256 || size_z > 256 {
             panic!("size can not be greater than 256")
@@ -153,7 +163,31 @@ impl VoxFile {
         self.write(file_path);
     }
 
+    /// Add a copy of a model at a certain position. The model id is which model in the array of models to use.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.add_model_copy(0, 5, 10, 5);
+    /// ```
     pub fn add_model_copy(&mut self, model_id: i32, x: i32, y: i32, z: i32) {
         self.add_copy(model_id, Some((x, y, z)), None, None, None);
+    }
+
+    /// Creates a new layer and returns the id that it has.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.models[0].layer = Some(vox.add_layer(String::from("my layer"), false));
+    /// ```
+    pub fn add_layer(&mut self, name: String, hidden: bool) -> i32 {
+        self.layers
+            .push(Layer::new(name, hidden, self.layers.len() as i32));
+        self.layers.len() as i32
     }
 }

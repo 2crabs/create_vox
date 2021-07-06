@@ -1,5 +1,5 @@
 # Creating vox files in Rust
-A Rust library for easily creating and loading magicavoxel files. Includes all functionality for creating and reading a simple vox file.
+A Rust library for easily creating and loading magicavoxel files. Includes all functionality for creating and reading a .vox file. Supports multiple models and copies of models in the same .vox file.
 
 ## Example
 creating a file:
@@ -16,5 +16,5 @@ loading a file:
 //opens a file and then auto scales it
 let mut new_vox = VoxFile::load("my_vox.vox");
 new_vox.models[0].auto_size();
-new_vox.savee("new_vox.vox");
+new_vox.save("new_vox.vox");
 ```
