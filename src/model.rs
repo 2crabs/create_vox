@@ -12,7 +12,7 @@ pub struct Model {
     pub size: (u16, u16, u16),
     pub(crate) voxels: Vec<Voxel>,
     pub position: Option<(i32, i32, i32)>,
-    pub rotation: Option<u8>,
+    pub(crate) rotation: Option<u8>,
     pub layer: Option<i32>,
     pub name: Option<String>,
     pub id: i32,
