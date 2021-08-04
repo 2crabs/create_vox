@@ -190,4 +190,54 @@ impl VoxFile {
             .push(Layer::new(name, hidden, self.layers.len() as i32));
         self.layers.len() as i32
     }
+
+    /// Changes the id of a model in the voxfile. If another model already has that id it will panic.
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::VoxFile;
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.change_model_id(0, 12);
+    /// vox.add_model_copy(12, 20, 20, 20);
+    /// ```
+    pub fn change_model_id(&mut self, index: i32, new_id: i32){
+        for model in self.models.iter(){
+            if model.id == new_id {
+                panic!("a model in this voxfile already has id {}", new_id)
+            }
+        }
+        self.models[index as usize].id = new_id
+    }
+
+    /// Adds a model and gives it a new id so it does not conflict with other models
+    ///
+    /// # Example
+    /// ```
+    /// use create_vox::{VoxFile, Model};
+    ///
+    /// let mut vox = VoxFile::new(10, 10, 10);
+    /// vox.add_model(Model::new(20, 20, 20));
+    /// vox.add_model(Model::new(25,15,10));
+    /// assert_eq!(vox.models.len(), 3);
+    /// ```
+    pub fn add_model(&mut self, mut model: Model){
+        model.id = self.get_new_model_id();
+        self.models.push(model);
+    }
+
+    fn get_new_model_id(&self) -> i32{
+        let mut id = self.models.len() as i32;
+
+        let mut current_ids = Vec::new();
+        for model in self.models.iter(){
+            current_ids.push(model.id);
+        }
+
+        while current_ids.contains(&id) {
+            id += 1;
+        }
+
+        return id
+    }
 }

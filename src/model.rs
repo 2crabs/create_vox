@@ -15,7 +15,7 @@ pub struct Model {
     pub(crate) rotation: Option<u8>,
     pub layer: Option<i32>,
     pub name: Option<String>,
-    pub id: i32,
+    pub(crate) id: i32,
 }
 
 #[allow(unused_variables)]
@@ -401,5 +401,9 @@ impl Model {
         for voxel in voxel_iter {
             closure(voxel);
         }
+    }
+
+    pub fn get_id(&self)-> i32{
+        self.id
     }
 }
