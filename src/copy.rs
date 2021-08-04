@@ -30,8 +30,4 @@ impl ModelCopy {
             translation: self.position,
         }
     }
-
-    pub fn set_name(&mut self, name: String) {
-        self.name = Some(name);
-    }
 }
