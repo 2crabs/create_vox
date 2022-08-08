@@ -23,3 +23,8 @@ fn voxel_at_pos() {
     test_vox.models[0].add_voxel_at_pos(3, 4, 2, 1);
     assert_eq!(true, test_vox.models[0].is_voxel_at_pos(3, 4, 2));
 }
+#[test]
+fn adding_cube(){
+    let mut test_vox = VoxFile::new(50, 1, 15);
+    test_vox.models[0].add_cube(0,0,0, 40, 1,15,1).expect("Failed to add cube");
+}

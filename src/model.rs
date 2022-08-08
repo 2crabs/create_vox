@@ -265,7 +265,7 @@ impl Model {
         endz: u8,
         colorindex: u8,
     ) -> Result<(), &str> {
-        if endx as u16 > self.size.0 || endx as u16 > self.size.1 || endx as u16 > self.size.2 {
+        if endx as u16 > self.size.0 || endy as u16 > self.size.1 || endz as u16 > self.size.2 {
             return Err("Cube too large");
         }
         for currentx in startx..endx {
